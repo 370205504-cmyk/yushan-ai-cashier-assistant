@@ -42,8 +42,11 @@ const RedisStore = require('connect-redis').default;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-if (isProduction && !process.env.SESSION_SECRET) {
-  throw new Error('ERROR: SESSION_SECRET environment variable is required in production. Please set SESSION_SECRET in your .env file.');
+const REQUIRED_SECRETS = ['JWT_SECRET', 'SESSION_SECRET', 'ENCRYPTION_KEY'];
+const missingSecrets = REQUIRED_SECRETS.filter(secret => !process.env[secret]);
+
+if (missingSecrets.length > 0) {
+  throw new Error(`安全错误: 以下必需的环境变量未设置: ${missingSecrets.join(', ')}. 请在 .env 文件中配置这些密钥。`);
 }
 
 const sessionConfig = {
@@ -103,8 +106,8 @@ app.use('/api/v1/store', storeRoutes);
 app.use('/api/v1/payment-config', paymentConfigRoutes);
 app.use('/api/v1', apiLimiter, apiRoutes);
 app.use('/agent', agentLimiter, requireAuth, agentRoutes);
-app.use('/admin', adminRoutes);
-app.use('/monitor', monitorRoutes);
+app.use('/admin', requireAdmin, adminRoutes);
+app.use('/monitor', requireAdmin, monitorRoutes);
 app.use('/api/v1/export', exportRoutes);
 app.use('/api/v1/user', userDataRoutes);
 app.use('/api/v1/llm-config', llmConfigRoutes);

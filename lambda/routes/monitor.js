@@ -237,7 +237,7 @@ router.get('/logs',
       const fs = require('fs');
       const path = require('path');
 
-      const logsDir = path.join(__dirname, '../../logs');
+      const logsDir = path.resolve(__dirname, '../../logs');
       const logFiles = {
         access: 'access.log',
         error: 'error.log',
@@ -248,22 +248,24 @@ router.get('/logs',
 
       const logs = [];
 
-      if (type === 'all' || type === 'access') {
-        const accessPath = path.join(logsDir, logFiles.access);
-        if (fs.existsSync(accessPath)) {
-          const content = fs.readFileSync(accessPath, 'utf8');
-          const lines = content.split('\n').filter(l => l.trim()).slice(-200);
-          lines.forEach(l => logs.push({ type: 'access', content: l }));
+      const readLogFile = (filename, logType) => {
+        const filePath = path.resolve(logsDir, filename);
+        if (!filePath.startsWith(logsDir)) {
+          return;
         }
+        if (fs.existsSync(filePath)) {
+          const content = fs.readFileSync(filePath, 'utf8');
+          const lines = content.split('\n').filter(l => l.trim()).slice(-200);
+          lines.forEach(l => logs.push({ type: logType, content: l }));
+        }
+      };
+
+      if (type === 'all' || type === 'access') {
+        readLogFile(logFiles.access, 'access');
       }
 
       if (type === 'all' || type === 'error') {
-        const errorPath = path.join(logsDir, logFiles.error);
-        if (fs.existsSync(errorPath)) {
-          const content = fs.readFileSync(errorPath, 'utf8');
-          const lines = content.split('\n').filter(l => l.trim()).slice(-100);
-          lines.forEach(l => logs.push({ type: 'error', content: l }));
-        }
+        readLogFile(logFiles.error, 'error');
       }
 
       logs.sort((a, b) => {

@@ -296,18 +296,24 @@ router.get('/logs', requireAdmin, async (req, res) => {
     const { type, page = 1, pageSize = 50 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(pageSize);
 
-    const logsDir = require('path').join(__dirname, '../logs');
+    const path = require('path');
     const fs = require('fs');
-
-    const logFiles = ['access.log', 'error.log', 'payment.log', 'order.log', 'notification.log'];
+    
+    const logsDir = path.resolve(__dirname, '../logs');
+    const allowedLogs = ['access.log', 'error.log', 'payment.log', 'order.log', 'notification.log'];
     const logs = [];
 
-    for (const file of logFiles) {
-      const filePath = require('path').join(logsDir, file);
+    for (const filename of allowedLogs) {
+      const filePath = path.resolve(logsDir, filename);
+      
+      if (!filePath.startsWith(logsDir)) {
+        continue;
+      }
+      
       if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, 'utf8');
         const lines = content.split('\n').filter(l => l.trim());
-        logs.push(...lines.slice(-100).map(l => ({ type: file.replace('.log', ''), content: l })));
+        logs.push(...lines.slice(-100).map(l => ({ type: filename.replace('.log', ''), content: l })));
       }
     }
 

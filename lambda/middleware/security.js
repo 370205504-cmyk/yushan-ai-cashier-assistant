@@ -94,13 +94,12 @@ const helmetConfig = helmet({
 const isProduction = process.env.NODE_ENV === 'production';
 
 const corsConfig = cors({
-  origin: isProduction
-    ? (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')
-    : '*',
+  origin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(','),
   methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID'],
   credentials: true,
-  maxAge: 86400
+  maxAge: 86400,
+  preflightContinue: false
 });
 
 const validate = (req, res, next) => {
