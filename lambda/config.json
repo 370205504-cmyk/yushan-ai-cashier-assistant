@@ -1,0 +1,68 @@
+{
+  "skill": {
+    "name": "雨姗AI收银助手创味菜",
+    "invocationName": "雨姗AI收银助手创味菜",
+    "version": "3.0.0",
+    "developer": "石中伟"
+  },
+  "restaurant": {
+    "name": "雨姗AI收银助手创味菜",
+    "address": "县孔祖大道南段",
+    "phone": "0370-628-8888",
+    "businessHours": "10:00-22:00"
+  },
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "cors": {
+      "enabled": true,
+      "origins": ["*"]
+    }
+  },
+  "wifi": {
+    "default": {
+      "ssid": "雨姗AI收银助手免费WiFi",
+      "password": "88888888"
+    }
+  },
+  "printer": {
+    "default": {
+      "ip": "192.168.1.100",
+      "port": 9100,
+      "enabled": true
+    }
+  },
+  "stores": [
+    {
+      "id": "default",
+      "name": "总店",
+      "address": "县孔祖大道南段123号",
+      "hours": "10:00-22:00",
+      "phone": "0370-628-8888"
+    }
+  ],
+  "order": {
+    "statusLifeCycle": [
+      "pending",
+      "confirmed",
+      "preparing",
+      "ready",
+      "completed",
+      "cancelled"
+    ],
+    "autoCancelMinutes": 30
+  },
+  "payment": {
+    "enabled": false,
+    "methods": []
+  },
+  "cashier": {
+    "enabled": false,
+    "provider": null
+  },
+  "logging": {
+    "level": "info",
+    "logOrders": true,
+    "logOperations": true
+  }
+}

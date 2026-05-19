@@ -1,0 +1,18 @@
+# Git Configuration for yushan-catering-skill
+# Created: 2026-05-15
+
+# 用户信息（请根据实际情况配置）
+[user]
+    name = Your Name
+    email = your.email@example.com
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[pull]
+    rebase = false
+
+[alias]
+    sync = !bash -c \"source git-sync.sh\"
+    save = !git add -A && git commit -m \"$1\" && git push

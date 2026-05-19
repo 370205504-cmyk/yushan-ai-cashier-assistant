@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨姗AI收银助手 v5.0.0 - 智能餐饮</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 { font-size: 48px; margin-bottom: 15px; }
+        .hero .tagline { font-size: 20px; opacity: 0.95; margin-bottom: 10px; }
+        .hero .version { font-size: 16px; opacity: 0.8; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; display: inline-block; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .feature {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .feature .icon { font-size: 48px; margin-bottom: 15px; }
+        .feature h3 { color: #333; margin-bottom: 10px; font-size: 20px; }
+        .feature p { color: #666; line-height: 1.6; font-size: 14px; }
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+        }
+        .cta-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        .cta-btn:hover { background: #5568d3; transform: translateY(-2px); }
+        .cta-btn.success { background: #28a745; }
+        .cta-btn.success:hover { background: #218838; }
+        .cta-btn.secondary { background: #6c757d; }
+        .cta-btn.secondary:hover { background: #5a6268; }
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="status-badge">✅ v5.0.0 正式上线</div>
+        <h1>雨姗AI收银助手</h1>
+        <p class="tagline">自然语义智能体 - 让每个餐饮商家都能轻松使用AI</p>
+        <p class="version">更新时间：2026-05-18</p>
+    </div>
+    <div class="container">
+        <div class="features">
+            <div class="feature">
+                <div class="icon">📱</div>
+                <h3>移动端点餐</h3>
+                <p>支持菜品浏览、搜索、购物车、订单，体验流畅</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🤖</div>
+                <h3>AI智能助手</h3>
+                <p>自然语言点餐、智能推荐、问答，24小时服务</p>
+            </div>
+            <div class="feature">
+                <div class="icon">⚙️</div>
+                <h3>管理后台</h3>
+                <p>菜品管理、订单管理、数据监控，功能完整</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🔒</div>
+                <h3>安全防护</h3>
+                <p>XSS/CSRF防护、速率限制、AES-256加密存储</p>
+            </div>
+            <div class="feature">
+                <div class="icon">📊</div>
+                <h3>系统监控</h3>
+                <p>数据库、磁盘、系统资源全方位监控</p>
+            </div>
+            <div class="feature">
+                <div class="icon">🤝</div>
+                <h3>大模型集成</h3>
+                <p>支持DeepSeek、OpenAI、Moonshot等主流大模型</p>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <a href="/mobile" class="cta-btn">开始点餐</a>
+            <a href="/admin" class="cta-btn success">管理后台</a>
+            <a href="/llm-config" class="cta-btn secondary">大模型配置</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2026 雨姗科技. 雨姗AI收银助手 v5.0.0</p>
+    </div>
+</body>
+</html>

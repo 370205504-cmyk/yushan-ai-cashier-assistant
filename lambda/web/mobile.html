@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雨姗AI收银助手 - 点餐</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding-bottom: 180px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 20px 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-title h1 {
+            font-size: 19px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .header-title p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            margin-top: 2px;
+        }
+        
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            padding: 16px 16px 12px 16px;
+            gap: 8px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            background: white;
+            position: sticky;
+            top: 96px;
+            z-index: 99;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+        }
+        
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-btn {
+            flex-shrink: 0;
+            padding: 9px 18px;
+            background: #f1f3f5;
+            color: #495057;
+            border: none;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+            transform: scale(1.02);
+        }
+        
+        .services-info {
+            background: white;
+            margin: 12px 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            color: #495057;
+            font-size: 13px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .services-info .icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .services-info .text {
+            flex: 1;
+            line-height: 1.6;
+        }
+        
+        .services-info .text .highlight {
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .dishes-container {
+            padding: 8px 16px;
+        }
+        
+        .dish-item {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+        }
+        
+        .dish-item:active {
+            transform: scale(0.99);
+        }
+        
+        .dish-image {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+        
+        .dish-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .dish-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .dish-desc {
+            font-size: 12px;
+            color: #868e96;
+            margin-bottom: 8px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .dish-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .tag-recommend { background: #fff3cd; color: #856404; }
+        .tag-signature { background: #d1fae5; color: #059669; }
+        .tag-spicy { background: #fee2e2; color: #dc2626; }
+        
+        .dish-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dish-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #667eea;
+        }
+        
+        .dish-price span {
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .add-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(102,126,234,0.35);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f3f5;
+            color: #495057;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qty-btn:active {
+            background: #dee2e6;
+        }
+        
+        .qty-display {
+            min-width: 24px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #212529;
+        }
+        
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 200;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        .search-section {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid #f1f3f5;
+            border-radius: 14px;
+            font-size: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #868e96;
+        }
+        
+        .cart-bar {
+            padding: 12px 16px 16px 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cart-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 14px rgba(102,126,234,0.4);
+            margin-right: 14px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+        }
+        
+        .cart-info {
+            flex: 1;
+        }
+        
+        .cart-total {
+            font-size: 22px;
+            font-weight: 800;
+            color: #667eea;
+        }
+        
+        .cart-total span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .cart-count {
+            font-size: 12px;
+            color: #868e96;
+            margin-top: 2px;
+        }
+        
+        .checkout-btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(102,126,234,0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .checkout-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .checkout-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 70px 30px;
+            color: #868e96;
+        }
+        
+        .empty-state .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            z-index: 300;
+            display: none;
+        }
+        
+        .modal-overlay.active {
+            display: block;
+        }
+        
+        .cart-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 0 0 20px 0;
+            max-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 400;
+        }
+        
+        .cart-modal.active {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 22px 24px 18px 24px;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            color: #212529;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            background: #f1f3f5;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            color: #868e96;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 24px;
+        }
+        
+        .cart-item {
+            display: flex;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+            color: #212529;
+        }
+        
+        .cart-item-price {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 15px;
+            margin-right: 14px;
+        }
+        
+        .notes-section {
+            padding: 20px 24px;
+            border-top: 1px solid #f1f3f5;
+        }
+        
+        .notes-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+        
+        .notes-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 15px;
+            resize: none;
+            min-height: 70px;
+        }
+        
+        .notes-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #f1f3f5;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            background: #f1f3f5;
+            color: #868e96;
+        }
+        
+        .btn-primary {
+            flex: 2;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .chat-button {
+            position: fixed;
+            right: 16px;
+            bottom: 200px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 199;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-button:active {
+            transform: scale(0.9);
+        }
+        
+        .chat-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .chat-window {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: 85vh;
+            max-height: 700px;
+            background: #f8f9fa;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .chat-window.active {
+            display: flex;
+            transform: translateY(0);
+        }
+        
+        .chat-handle {
+            width: 40px;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            margin: 10px auto 0;
+        }
+        
+        .chat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 499;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        
+        .chat-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.3);
+        }
+        
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .chat-title h2 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .chat-title p {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+        
+        .chat-close-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            min-height: 0;
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .message {
+            max-width: 80%;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message.user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .message.user .message-avatar {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .message-content {
+            background: white;
+            padding: 14px 18px;
+            border-radius: 4px 20px 20px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            line-height: 1.65;
+            font-size: 15px;
+            white-space: pre-line;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px 4px 20px 20px;
+            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.35);
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #adb5bd;
+            margin-top: 4px;
+            text-align: right;
+        }
+        
+        .chat-input-area {
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #f1f3f5;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 24px;
+            font-size: 15px;
+            resize: none;
+            max-height: 100px;
+            min-height: 48px;
+            outline: none;
+            transition: all 0.25s ease;
+            background: #f8f9fa;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+            background: white;
+        }
+
+        .chat-input::placeholder {
+            color: #adb5bd;
+        }
+        
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .chat-send-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px 8px;
+            overflow-x: auto;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .quick-action-btn {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #f8f9fa, #f1f3f5);
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .quick-action-btn:active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: scale(0.95);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 8px 0;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #adb5bd;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+        
+        .payment-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            max-height: 80vh;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 600;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .payment-modal.active {
+            transform: translateY(0);
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .payment-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #07c160, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 24px rgba(7, 193, 96, 0.3);
+        }
+        
+        .payment-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+        
+        .payment-subtitle {
+            font-size: 14px;
+            color: #868e96;
+        }
+        
+        .payment-amount {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .payment-amount-label {
+            font-size: 14px;
+            color: #868e96;
+            margin-bottom: 8px;
+        }
+        
+        .payment-amount-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #07c160;
+        }
+        
+        .payment-amount-value span {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .password-section {
+            margin-bottom: 24px;
+        }
+        
+        .password-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .password-input-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .password-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        .password-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .password-input.error {
+            border-color: #ef4444;
+        }
+        
+        .keyboard-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .keyboard-btn {
+            height: 56px;
+            border: none;
+            border-radius: 14px;
+            background: #f1f3f5;
+            font-size: 22px;
+            font-weight: 600;
+            color: #212529;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .keyboard-btn:active {
+            background: #dee2e6;
+            transform: scale(0.95);
+        }
+        
+        .keyboard-btn.delete {
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 18px;
+        }
+        
+        .keyboard-btn.confirm {
+            background: linear-gradient(135deg, #07c160, #10b981);
+            color: white;
+            font-size: 16px;
+        }
+        
+        .payment-error {
+            color: #ef4444;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 16px;
+            display: none;
+        }
+        
+        .payment-error.show {
+            display: block;
+        }
+        
+        .success-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            z-index: 700;
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 320px;
+            width: 90%;
+        }
+        
+        .success-modal.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #07c160, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(7, 193, 96, 0.3);
+        }
+        
+        .success-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+        
+        .success-desc {
+            font-size: 14px;
+            color: #868e96;
+            margin-bottom: 24px;
+        }
+        
+        .success-order {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .success-order-id {
+            font-size: 13px;
+            color: #868e96;
+            margin-bottom: 4px;
+        }
+        
+        .success-order-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #212529;
+            font-family: monospace;
+        }
+        
+        .success-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="logo-title">
+                <div class="logo-icon">🍜</div>
+                <div class="header-title">
+                    <h1>雨姗AI收银助手</h1>
+                    <p>欢迎光临，开始点餐</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="categories" id="categories">
+        <button class="category-btn active" data-category="全部">全部</button>
+        <button class="category-btn" data-category="招牌菜">招牌菜</button>
+        <button class="category-btn" data-category="特色硬菜">特色硬菜</button>
+        <button class="category-btn" data-category="热菜">热菜</button>
+        <button class="category-btn" data-category="凉菜">凉菜</button>
+        <button class="category-btn" data-category="主食">主食</button>
+        <button class="category-btn" data-category="饮品">饮品</button>
+    </div>
+    
+    <div class="services-info">
+        <span class="icon">📶</span>
+        <div class="text">
+            <div><span class="highlight">WiFi密码</span>：88888888</div>
+            <div><span class="highlight">营业时间</span>：09:00 - 22:00</div>
+        </div>
+    </div>
+    
+    <div class="dishes-container" id="dishes-container">
+    </div>
+    
+    <div class="bottom-bar">
+        <div class="search-section">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="search-input" placeholder="搜索菜品...">
+            </div>
+        </div>
+        <div class="cart-bar" id="cart-bar">
+            <div class="cart-icon-wrapper" onclick="openCart()">
+                🛒
+                <span class="cart-badge" id="cart-badge">0</span>
+            </div>
+            <div class="cart-info">
+                <div class="cart-total"><span>¥</span><span id="cart-total">0.00</span></div>
+                <div class="cart-count" id="cart-count">共 0 件</div>
+            </div>
+            <button class="checkout-btn" id="checkout-btn" onclick="submitOrder()">去结算</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modal-overlay" onclick="closeCart()"></div>
+    <div class="cart-modal" id="cart-modal">
+        <div class="modal-header">
+            <h2>购物车</h2>
+            <button class="close-btn" onclick="closeCart()">×</button>
+        </div>
+        <div class="modal-body" id="cart-items">
+        </div>
+        <div class="notes-section">
+            <h3>备注</h3>
+            <textarea class="notes-input" id="order-notes" placeholder="如有特殊要求，请在此填写..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="clearCart()">清空购物车</button>
+            <button class="btn btn-primary" onclick="submitOrder()">提交订单</button>
+        </div>
+    </div>
+    
+    <div class="chat-button" onclick="openChat()">
+        🤖
+        <span class="chat-badge" id="chat-badge">1</span>
+    </div>
+    
+    <div class="chat-overlay" id="chat-overlay" onclick="closeChat()"></div>
+    
+    <div class="chat-window" id="chat-window">
+        <div class="chat-handle"></div>
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-title">
+                    <h2>雨姗AI助手</h2>
+                    <p>智能点餐 · 24小时在线</p>
+                </div>
+            </div>
+            <button class="chat-close-btn" onclick="closeChat()">×</button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+        </div>
+        
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="sendQuickMessage('推荐招牌菜')">推荐招牌菜</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('看看菜单')">看看菜单</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('WiFi密码')">WiFi密码</button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('门店地址')">门店地址</button>
+        </div>
+        
+        <div class="chat-input-area">
+            <textarea 
+                class="chat-input" 
+                id="chat-input" 
+                placeholder="说点什么..."
+                onkeydown="handleChatKeydown(event)"
+                rows="1"
+            ></textarea>
+            <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-header">
+            <div class="payment-icon">💳</div>
+            <div class="payment-title">微信支付</div>
+            <div class="payment-subtitle">请输入支付密码完成结算</div>
+        </div>
+        
+        <div class="payment-amount">
+            <div class="payment-amount-label">应付金额</div>
+            <div class="payment-amount-value"><span>¥</span><span id="payment-amount">0.00</span></div>
+        </div>
+        
+        <div class="password-section">
+            <div class="password-label">支付密码</div>
+            <div class="password-input-wrapper">
+                <input type="password" class="password-input" id="pwd-0" maxlength="1" oninput="handlePwdInput(0)">
+                <input type="password" class="password-input" id="pwd-1" maxlength="1" oninput="handlePwdInput(1)">
+                <input type="password" class="password-input" id="pwd-2" maxlength="1" oninput="handlePwdInput(2)">
+                <input type="password" class="password-input" id="pwd-3" maxlength="1" oninput="handlePwdInput(3)">
+                <input type="password" class="password-input" id="pwd-4" maxlength="1" oninput="handlePwdInput(4)">
+                <input type="password" class="password-input" id="pwd-5" maxlength="1" oninput="handlePwdInput(5)">
+            </div>
+            <div class="payment-error" id="payment-error">密码错误，请重试</div>
+        </div>
+        
+        <div class="keyboard-section">
+            <button class="keyboard-btn" onclick="inputPwd('1')">1</button>
+            <button class="keyboard-btn" onclick="inputPwd('2')">2</button>
+            <button class="keyboard-btn" onclick="inputPwd('3')">3</button>
+            <button class="keyboard-btn" onclick="inputPwd('4')">4</button>
+            <button class="keyboard-btn" onclick="inputPwd('5')">5</button>
+            <button class="keyboard-btn" onclick="inputPwd('6')">6</button>
+            <button class="keyboard-btn" onclick="inputPwd('7')">7</button>
+            <button class="keyboard-btn" onclick="inputPwd('8')">8</button>
+            <button class="keyboard-btn" onclick="inputPwd('9')">9</button>
+            <button class="keyboard-btn" onclick="deletePwd()">⌫</button>
+            <button class="keyboard-btn" onclick="inputPwd('0')">0</button>
+            <button class="keyboard-btn confirm" onclick="confirmPayment()">确认支付</button>
+        </div>
+    </div>
+    
+    <div class="success-modal" id="success-modal">
+        <div class="success-icon">✓</div>
+        <div class="success-title">支付成功</div>
+        <div class="success-desc">订单已提交，正在打印小票...</div>
+        <div class="success-order">
+            <div class="success-order-id">订单编号</div>
+            <div class="success-order-value" id="success-order-id"></div>
+        </div>
+        <button class="success-btn" onclick="closeSuccess()">完成</button>
+    </div>
+
+    <script>
+        let dishes = [];
+        let cart = [];
+        let currentCategory = '全部';
+        // 从localStorage获取userId，这样刷新页面后能保持同一个用户
+        let userId = localStorage.getItem('mobileUserId');
+        if (!userId) {
+            userId = 'user-' + Date.now();
+            localStorage.setItem('mobileUserId', userId);
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        }
+        
+        function mapDishData(dish) {
+            return {
+                id: dish.id,
+                name: dish.name,
+                category: dish.category,
+                price: dish.price,
+                desc: dish.description || '',
+                isSignature: dish.isSignature || false,
+                isRecommend: dish.isRecommend || false,
+                spicyLevel: dish.spicyLevel || 0,
+                emoji: ['🍜','🍖','🐟','🥔','🥦','🥒','🍚','🍋'][dish.id % 8]
+            };
+        }
+        
+        async function loadDishes() {
+            try {
+                const response = await fetch('/api/v1/dishes/dishes');
+                const result = await response.json();
+                if (result.success) {
+                    dishes = result.dishes.map(mapDishData);
+                    renderDishes();
+                }
+            } catch (error) {
+                console.error('Failed to load dishes', error);
+            }
+        }
+        
+        async function loadCart() {
+            console.log('loadCart called with userId:', userId);
+            try {
+                const response = await fetch(`/api/v1/cart/${userId}`);
+                console.log('loadCart response status:', response.status);
+                const result = await response.json();
+                console.log('loadCart response result:', result);
+                if (result.success) {
+                    const cartData = result.data || result.cart;
+                    cart = (cartData.items || []).map(item => ({
+                        id: item.dishId,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    }));
+                    console.log('Parsed cart:', cart);
+                    updateCart();
+                    renderDishes();
+                }
+            } catch (error) {
+                console.error('Failed to load cart', error);
+            }
+        }
+        
+        function renderDishes() {
+            const container = document.getElementById('dishes-container');
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredDishes = dishes;
+            if (currentCategory !== '全部') {
+                filteredDishes = filteredDishes.filter(d => d.category === currentCategory);
+            }
+            if (searchText) {
+                filteredDishes = filteredDishes.filter(d => 
+                    d.name.toLowerCase().includes(searchText) || 
+                    (d.desc && d.desc.toLowerCase().includes(searchText))
+                );
+            }
+            
+            if (filteredDishes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🍽️</div>
+                        <p>暂无菜品</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredDishes.map(dish => {
+                const cartItem = cart.find(item => item.id === dish.id);
+                const quantity = cartItem ? cartItem.quantity : 0;
+                
+                const spicyTag = dish.spicyLevel > 0 ? `<span class="tag tag-spicy">${'🌶️'.repeat(Math.min(dish.spicyLevel, 3))}</span>` : '';
+                const recommendTag = dish.isRecommend ? '<span class="tag tag-recommend">推荐</span>' : '';
+                const signatureTag = dish.isSignature ? '<span class="tag tag-signature">招牌</span>' : '';
+                
+                return `
+                    <div class="dish-item">
+                        <div class="dish-image">${dish.emoji}</div>
+                        <div class="dish-info">
+                            <div class="dish-name">${dish.name}</div>
+                            <div class="dish-desc">${dish.desc}</div>
+                            <div class="dish-tags">${recommendTag}${signatureTag}${spicyTag}</div>
+                            <div class="dish-bottom">
+                                <div class="dish-price"><span>¥</span>${dish.price}</div>
+                                ${quantity > 0 ? `
+                                    <div class="quantity-control">
+                                        <button class="qty-btn" onclick="removeFromCart(${dish.id})">−</button>
+                                        <div class="qty-display">${quantity}</div>
+                                        <button class="qty-btn" onclick="addToCart(${dish.id})">+</button>
+                                    </div>
+                                ` : `
+                                    <button class="add-btn" onclick="addToCart(${dish.id})">+</button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function addToCart(dishId) {
+            console.log('addToCart called with dishId:', dishId, 'userId:', userId);
+            try {
+                const response = await fetch('/api/v1/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, dishId: dishId, quantity: 1 })
+                });
+                console.log('Response status:', response.status);
+                const result = await response.json();
+                console.log('Response result:', result);
+                if (result.success) {
+                    await loadCart();
+                    showToast('已添加');
+                } else {
+                    showToast('添加失败: ' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('Failed to add to cart', error);
+                showToast('添加失败，请重试');
+            }
+        }
+        
+        async function removeFromCart(dishId) {
+            console.log('removeFromCart called with dishId:', dishId, 'userId:', userId);
+            try {
+                const response = await fetch('/api/v1/cart/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, dishId: dishId })
+                });
+                const result = await response.json();
+                console.log('removeFromCart response:', result);
+                if (result.success) {
+                    await loadCart();
+                }
+            } catch (error) {
+                console.error('Failed to remove from cart', error);
+            }
+        }
+        
+        function updateCart() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            const cartBadge = document.getElementById('cart-badge');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            
+            cartBadge.textContent = totalItems;
+            cartCount.textContent = `共 ${totalItems} 件`;
+            cartTotal.textContent = totalPrice.toFixed(2);
+        }
+        
+        function openCart() {
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('cart-modal').classList.add('active');
+            renderCartItems();
+        }
+        
+        function closeCart() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('cart-modal').classList.remove('active');
+        }
+        
+        function renderCartItems() {
+            const container = document.getElementById('cart-items');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 40px 20px; color: #868e96;">
+                        <div class="icon">🛒</div>
+                        <p>购物车是空的</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-price">¥${item.price}</div>
+                    <div class="quantity-control">
+                        <button class="qty-btn" onclick="removeFromCart(${item.id});">−</button>
+                        <div class="qty-display">${item.quantity}</div>
+                        <button class="qty-btn" onclick="addToCart(${item.id});">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function clearCart() {
+            if (cart.length === 0) return;
+            if (!confirm('确定要清空购物车吗？')) return;
+            try {
+                const response = await fetch('/api/v1/cart/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    await loadCart();
+                    renderCartItems();
+                    showToast('购物车已清空');
+                }
+            } catch (error) {
+                console.error('Failed to clear cart', error);
+            }
+        }
+        
+        async function submitOrder() {
+            if (cart.length === 0) {
+                showToast('请先添加菜品');
+                return;
+            }
+            closeCart();
+            openPayment();
+        }
+        
+        let paymentPassword = '';
+        
+        function openPayment() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('payment-amount').textContent = total.toFixed(2);
+            paymentPassword = '';
+            for (let i = 0; i < 6; i++) {
+                document.getElementById(`pwd-${i}`).value = '';
+                document.getElementById(`pwd-${i}`).classList.remove('error');
+            }
+            document.getElementById('payment-error').classList.remove('show');
+            document.getElementById('payment-modal').classList.add('active');
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('pwd-0').focus();
+        }
+        
+        function closePayment() {
+            document.getElementById('payment-modal').classList.remove('active');
+            document.getElementById('modal-overlay').classList.remove('active');
+            paymentPassword = '';
+        }
+        
+        function inputPwd(num) {
+            if (paymentPassword.length < 6) {
+                const index = paymentPassword.length;
+                paymentPassword += num;
+                document.getElementById(`pwd-${index}`).value = '*';
+                if (index < 5) {
+                    document.getElementById(`pwd-${index + 1}`).focus();
+                }
+                if (paymentPassword.length === 6) {
+                    confirmPayment();
+                }
+            }
+        }
+        
+        function deletePwd() {
+            if (paymentPassword.length > 0) {
+                const index = paymentPassword.length - 1;
+                paymentPassword = paymentPassword.slice(0, -1);
+                document.getElementById(`pwd-${index}`).value = '';
+                document.getElementById(`pwd-${index}`).classList.remove('error');
+                document.getElementById('payment-error').classList.remove('show');
+                document.getElementById(`pwd-${index}`).focus();
+            }
+        }
+        
+        function handlePwdInput(index) {
+            const input = document.getElementById(`pwd-${index}`);
+            if (input.value) {
+                input.value = '*';
+                if (index < 5) {
+                    document.getElementById(`pwd-${index + 1}`).focus();
+                }
+            }
+        }
+        
+        async function confirmPayment() {
+            if (paymentPassword.length !== 6) {
+                showToast('请输入6位支付密码');
+                return;
+            }
+            
+            document.getElementById('payment-error').classList.remove('show');
+            
+            try {
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const remarks = document.getElementById('order-notes').value || '';
+                
+                // 准备订单数据
+                const items = cart.map(item => ({
+                    dishId: item.id,
+                    quantity: item.quantity,
+                    remarks: item.remarks || ''
+                }));
+                
+                // 第一步：创建订单
+                const createResponse = await fetch('/api/v1/order/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: items,
+                        type: 'takeout',
+                        remarks: remarks,
+                        clientTotalAmount: total
+                    })
+                });
+                
+                const createResult = await createResponse.json();
+                console.log('Order create result:', createResult);
+                
+                if (!createResult.success) {
+                    throw new Error(createResult.message || '订单创建失败');
+                }
+                
+                const orderNo = createResult.order.orderNo;
+                
+                // 第二步：模拟支付成功（更新订单状态）
+                const payResponse = await fetch(`/api/v1/order/print`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderNo: orderNo
+                    })
+                });
+                
+                // 第三步：打印订单（调用打印服务）
+                try {
+                    await printOrder(orderNo);
+                } catch (printError) {
+                    console.error('Print error:', printError);
+                    // 打印失败不影响订单流程
+                }
+                
+                closePayment();
+                showSuccess(orderNo);
+                
+            } catch (error) {
+                console.error('Payment error:', error);
+                showToast(error.message || '支付失败，请重试');
+            }
+        }
+        
+        async function printOrder(orderNo) {
+            try {
+                const response = await fetch('/api/v1/order/print', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderNo: orderNo })
+                });
+                const result = await response.json();
+                console.log('Print result:', result);
+            } catch (error) {
+                console.error('Print error:', error);
+            }
+        }
+        
+        function showSuccess(orderId) {
+            document.getElementById('success-order-id').textContent = orderId;
+            document.getElementById('success-modal').classList.add('active');
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        
+        function closeSuccess() {
+            document.getElementById('success-modal').classList.remove('active');
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('order-notes').value = '';
+            // 清空购物车
+            cart = [];
+            localStorage.removeItem('mobileCart');
+            loadCart();
+            updateCartDisplay();
+        }
+        
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderDishes();
+            });
+        });
+        
+        document.getElementById('search-input').addEventListener('input', () => {
+            renderDishes();
+        });
+        
+        let chatSessionId = 'session-' + Date.now();
+        let chatMessages = [];
+        let isTyping = false;
+        
+        function initChat() {
+            const welcomeMsg = {
+                id: Date.now(),
+                type: 'assistant',
+                content: '您好！👋 我是雨姗AI收银助手的智能点餐助手。\n\n我可以帮您：\n• 查看菜单\n• 推荐菜品\n• 帮您下单\n• 查询门店信息\n\n有什么可以帮您？',
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            };
+            chatMessages.push(welcomeMsg);
+            renderChatMessages();
+        }
+        
+        function openChat() {
+            document.getElementById('chat-overlay').classList.add('active');
+            document.getElementById('chat-window').classList.add('active');
+            renderChatMessages();
+            setTimeout(() => {
+                const messagesContainer = document.getElementById('chat-messages');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+        
+        function closeChat() {
+            document.getElementById('chat-overlay').classList.remove('active');
+            document.getElementById('chat-window').classList.remove('active');
+        }
+        
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = chatMessages.map(msg => `
+                <div class="message ${msg.type}">
+                    <div class="message-avatar">${msg.type === 'assistant' ? '🤖' : '😊'}</div>
+                    <div>
+                        <div class="message-content">${msg.content}</div>
+                        <div class="message-time">${msg.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'message assistant';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+            isTyping = true;
+        }
+        
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+            isTyping = false;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            
+            if (!text || isTyping) return;
+            
+            const userMsg = {
+                id: Date.now(),
+                type: 'user',
+                content: text,
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            };
+            chatMessages.push(userMsg);
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            renderChatMessages();
+            
+            const container = document.getElementById('chat-messages');
+            container.scrollTop = container.scrollHeight;
+            
+            showTypingIndicator();
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+                
+                const response = await fetch('/agent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: text,
+                        session_id: chatSessionId
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const result = await response.json();
+                
+                removeTypingIndicator();
+                
+                if (result.success) {
+                    const assistantMsg = {
+                        id: Date.now(),
+                        type: 'assistant',
+                        content: result.reply,
+                        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                    };
+                    chatMessages.push(assistantMsg);
+                    
+                    if (result.actions) {
+                        await handleChatActions(result.actions);
+                    }
+                    if (result.data) {
+                        await handleDataUpdate(result.data);
+                    }
+                } else {
+                    const errorMsg = {
+                        id: Date.now(),
+                        type: 'assistant',
+                        content: '抱歉，服务暂时不可用，请稍后再试。',
+                        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                    };
+                    chatMessages.push(errorMsg);
+                }
+                
+                renderChatMessages();
+                container.scrollTop = container.scrollHeight;
+                
+            } catch (error) {
+                removeTypingIndicator();
+                
+                let errorMessage = '抱歉，网络连接失败，请检查网络后重试。';
+                if (error.name === 'AbortError') {
+                    errorMessage = '抱歉，AI回复超时了，请稍后再试。';
+                }
+                
+                const errorMsg = {
+                    id: Date.now(),
+                    type: 'assistant',
+                    content: errorMessage,
+                    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                };
+                chatMessages.push(errorMsg);
+                
+                renderChatMessages();
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+        
+        async function handleDataUpdate(data) {
+            if (data.cart) {
+                await loadCart();
+            }
+        }
+        
+        async function handleChatActions(actions) {
+            for (const action of actions) {
+                if (action.type === 'add_to_cart' && action.data) {
+                    const dish = action.data.dish;
+                    if (dish && dish.id) {
+                        await addToCart(dish.id);
+                    }
+                } else if (action.type === 'show_cart') {
+                    setTimeout(() => openCart(), 500);
+                }
+            }
+        }
+        
+        function sendQuickMessage(text) {
+            const input = document.getElementById('chat-input');
+            input.value = text;
+            sendMessage();
+        }
+        
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+            
+            const input = event.target;
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+        }
+        
+        loadDishes();
+        loadCart();
+        initChat();
+    </script>
+</body>
+</html>

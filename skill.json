@@ -1,0 +1,900 @@
+{
+  "name": "yushan-ai-cashier-assistant",
+  "version": "4.1.0",
+  "description": "雨姗AI收银助手创味菜官方AI点餐服务，支持语音点餐、文字聊天、排队取号、商业服务查询（地址、电话、营业时间、WiFi、停车等）",
+  "author": "石中伟",
+  "license": "MIT",
+  "keywords": [
+    "restaurant",
+    "ordering",
+    "ai-agent",
+    "voice-assistant",
+    "mcp",
+    "alexa-skill"
+  ],
+  "mcp": {
+    "protocol_version": "2024-11-05",
+    "endpoint": "https://mcp.yushan-ai-cashier.com",
+    "transport": "http",
+    "authentication": {
+      "type": "bearer",
+      "header": "Authorization"
+    },
+    "tools": [
+      {
+        "name": "text_chat",
+        "description": "自然语言对话处理所有点餐和查询请求，包括：查看菜单、推荐菜品、添加购物车、提交订单、查询订单、取消订单等",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "用户输入的自然语言，如'给我推荐招牌菜'、'来一份糖醋里脊'、'查看购物车'"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "用户唯一ID，用于识别用户身份、购物车和订单"
+            },
+            "session_id": {
+              "type": "string",
+              "description": "会话ID，用于多轮对话上下文"
+            }
+          },
+          "required": ["query", "user_id"]
+        },
+        "examples": [
+          {"query": "给我推荐几道招牌菜", "user_id": "user_001"},
+          {"query": "来一份招牌大鱼头泡饭，少辣", "user_id": "user_001"},
+          {"query": "查看我的购物车", "user_id": "user_001"},
+          {"query": "下单", "user_id": "user_001"}
+        ]
+      },
+      {
+        "name": "get_menu",
+        "description": "获取完整菜单或指定分类的菜品列表",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "菜品分类：招牌菜、特色硬菜、宴请首选、餐前开胃、家常炒菜、汤羹主食",
+              "enum": ["招牌菜", "特色硬菜", "宴请首选", "餐前开胃", "家常炒菜", "汤羹主食", "全部"]
+            }
+          }
+        },
+        "examples": [
+          {"category": "招牌菜"},
+          {"category": "全部"}
+        ]
+      },
+      {
+        "name": "get_dish_detail",
+        "description": "获取指定菜品的详细信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "dish_id": {
+              "type": "string",
+              "description": "菜品ID"
+            }
+          },
+          "required": ["dish_id"]
+        }
+      },
+      {
+        "name": "recommend_dishes",
+        "description": "根据用户偏好推荐菜品",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "preferences": {
+              "type": "object",
+              "properties": {
+                "spicy_level": {
+                  "type": "number",
+                  "description": "辣度偏好：0不辣、1微辣、2中辣、3特辣"
+                },
+                "price_range": {
+                  "type": "string",
+                  "description": "价格区间：low(30以下)、medium(30-80)、high(80以上)"
+                },
+                "people_count": {
+                  "type": "number",
+                  "description": "用餐人数"
+                }
+              }
+            }
+          },
+          "required": ["user_id"]
+        }
+      },
+      {
+        "name": "add_to_cart",
+        "description": "添加菜品到购物车",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "dish_id": {
+              "type": "string",
+              "description": "菜品ID"
+            },
+            "quantity": {
+              "type": "number",
+              "description": "数量，默认1"
+            },
+            "remarks": {
+              "type": "string",
+              "description": "备注，如'少辣'、'不要葱'、'打包'"
+            }
+          },
+          "required": ["user_id", "dish_id"]
+        },
+        "examples": [
+          {"user_id": "user_001", "dish_id": "1", "quantity": 1, "remarks": "少辣"},
+          {"user_id": "user_001", "dish_id": "2", "quantity": 2}
+        ]
+      },
+      {
+        "name": "remove_from_cart",
+        "description": "从购物车移除菜品",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "dish_id": {
+              "type": "string",
+              "description": "菜品ID"
+            }
+          },
+          "required": ["user_id", "dish_id"]
+        }
+      },
+      {
+        "name": "get_cart",
+        "description": "获取用户购物车内容",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            }
+          },
+          "required": ["user_id"]
+        }
+      },
+      {
+        "name": "clear_cart",
+        "description": "清空用户购物车",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            }
+          },
+          "required": ["user_id"]
+        }
+      },
+      {
+        "name": "create_order",
+        "description": "提交订单",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "order_type": {
+              "type": "string",
+              "description": "订单类型：dine_in(堂食)、takeout(外带)、delivery(外卖)",
+              "enum": ["dine_in", "takeout", "delivery"]
+            },
+            "table_no": {
+              "type": "string",
+              "description": "桌号（堂食时填写）"
+            },
+            "remarks": {
+              "type": "string",
+              "description": "订单备注"
+            },
+            "address": {
+              "type": "string",
+              "description": "送餐地址（外卖时填写）"
+            },
+            "contact_phone": {
+              "type": "string",
+              "description": "联系电话"
+            }
+          },
+          "required": ["user_id", "order_type"]
+        }
+      },
+      {
+        "name": "get_orders",
+        "description": "获取用户订单列表",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "status": {
+              "type": "string",
+              "description": "订单状态筛选",
+              "enum": ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"]
+            },
+            "limit": {
+              "type": "number",
+              "description": "返回数量限制，默认10"
+            }
+          },
+          "required": ["user_id"]
+        }
+      },
+      {
+        "name": "get_order_detail",
+        "description": "获取订单详情",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            }
+          },
+          "required": ["order_no"]
+        }
+      },
+      {
+        "name": "cancel_order",
+        "description": "取消订单（仅在待确认或已接单状态时可取消）",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            },
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            },
+            "reason": {
+              "type": "string",
+              "description": "取消原因"
+            }
+          },
+          "required": ["user_id", "order_no"]
+        }
+      },
+      {
+        "name": "queue_take",
+        "description": "美团排队取号",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID"
+            },
+            "table_type": {
+              "type": "string",
+              "description": "桌型",
+              "enum": ["small", "medium", "large", "包间"]
+            },
+            "people": {
+              "type": "number",
+              "description": "用餐人数"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            }
+          },
+          "required": ["store_id", "table_type", "people"]
+        },
+        "examples": [
+          {"store_id": "store001", "table_type": "medium", "people": 4, "user_id": "user_001"}
+        ]
+      },
+      {
+        "name": "query_queue",
+        "description": "查询排队进度",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "queue_id": {
+              "type": "string",
+              "description": "排队ID"
+            }
+          },
+          "required": ["queue_id"]
+        },
+        "examples": [
+          {"queue_id": "QUEUE001"}
+        ]
+      },
+      {
+        "name": "cancel_queue",
+        "description": "取消排队",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "queue_id": {
+              "type": "string",
+              "description": "排队ID"
+            }
+          },
+          "required": ["queue_id"]
+        }
+      },
+      {
+        "name": "get_store_info",
+        "description": "获取门店信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {"store_id": "store001"},
+          {}
+        ]
+      },
+      {
+        "name": "get_wifi_info",
+        "description": "获取WiFi信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_business_hours",
+        "description": "获取营业时间",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_parking_info",
+        "description": "获取停车信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_contact_info",
+        "description": "获取联系信息（地址、电话、坐标）",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_address",
+        "description": "获取门店地址",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_phone",
+        "description": "获取门店电话",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_store_services",
+        "description": "获取门店服务（WiFi、停车、外卖、预订、充电宝、儿童服务、宠物政策、发票等）",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_announcements",
+        "description": "获取活动公告",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回全局公告"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_reservation_info",
+        "description": "获取包间预订信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_takeout_info",
+        "description": "获取外卖信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_stores",
+        "description": "获取所有门店列表",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "lat": {
+              "type": "number",
+              "description": "纬度，用于附近门店查询"
+            },
+            "lng": {
+              "type": "number",
+              "description": "经度，用于附近门店查询"
+            },
+            "radius": {
+              "type": "number",
+              "description": "搜索半径（公里），默认10"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"lat": 34.2311, "lng": 116.1315, "radius": 5}
+        ]
+      },
+      {
+        "name": "get_power_bank_info",
+        "description": "获取充电宝服务信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_pet_policy",
+        "description": "获取宠物政策信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "get_kids_service",
+        "description": "获取儿童服务信息",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "request_invoice",
+        "description": "申请开具发票",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            },
+            "invoice_type": {
+              "type": "string",
+              "description": "发票类型：personal(个人)或company(企业)",
+              "enum": ["personal", "company"]
+            },
+            "invoice_title": {
+              "type": "string",
+              "description": "发票抬头"
+            },
+            "tax_number": {
+              "type": "string",
+              "description": "税号（企业发票必填）"
+            },
+            "company_address": {
+              "type": "string",
+              "description": "公司地址（企业发票）"
+            },
+            "company_phone": {
+              "type": "string",
+              "description": "公司电话（企业发票）"
+            },
+            "bank_name": {
+              "type": "string",
+              "description": "开户银行（企业发票）"
+            },
+            "bank_account": {
+              "type": "string",
+              "description": "银行账号（企业发票）"
+            },
+            "email": {
+              "type": "string",
+              "description": "接收邮箱"
+            },
+            "phone": {
+              "type": "string",
+              "description": "接收电话"
+            },
+            "remark": {
+              "type": "string",
+              "description": "备注"
+            }
+          },
+          "required": ["order_no", "invoice_type", "invoice_title"]
+        },
+        "examples": [
+          {"order_no": "ORD20260115001", "invoice_type": "personal", "invoice_title": "个人", "email": "user@example.com"},
+          {"order_no": "ORD20260115002", "invoice_type": "company", "invoice_title": "某某公司", "tax_number": "91110000XXXXX", "email": "finance@company.com"}
+        ]
+      },
+      {
+        "name": "get_invoice_status",
+        "description": "查询发票状态",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            },
+            "invoice_id": {
+              "type": "string",
+              "description": "发票ID（可选）"
+            }
+          },
+          "required": ["order_no"]
+        },
+        "examples": [
+          {"order_no": "ORD20260115001"}
+        ]
+      },
+      {
+        "name": "create_delivery_order",
+        "description": "创建外卖配送订单",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            },
+            "store_id": {
+              "type": "string",
+              "description": "门店ID"
+            },
+            "delivery_address": {
+              "type": "string",
+              "description": "配送地址"
+            },
+            "contact_name": {
+              "type": "string",
+              "description": "联系人姓名"
+            },
+            "contact_phone": {
+              "type": "string",
+              "description": "联系电话"
+            },
+            "delivery_fee": {
+              "type": "number",
+              "description": "配送费"
+            },
+            "tips": {
+              "type": "number",
+              "description": "小费（可选）"
+            },
+            "notes": {
+              "type": "string",
+              "description": "配送备注（可选）"
+            }
+          },
+          "required": ["order_no", "store_id", "delivery_address", "contact_name", "contact_phone", "delivery_fee"]
+        },
+        "examples": [
+          {"order_no": "ORD20260115001", "store_id": "1", "delivery_address": "县某某小区1号楼1单元101室", "contact_name": "张先生", "contact_phone": "13800138000", "delivery_fee": 3}
+        ]
+      },
+      {
+        "name": "track_delivery",
+        "description": "跟踪配送状态",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            }
+          },
+          "required": ["order_no"]
+        },
+        "examples": [
+          {"order_no": "ORD20260115001"}
+        ]
+      },
+      {
+        "name": "update_delivery_status",
+        "description": "更新配送状态",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "order_no": {
+              "type": "string",
+              "description": "订单号"
+            },
+            "status": {
+              "type": "string",
+              "description": "配送状态：pending(待接单), accepted(已接单), picking(取餐中), delivering(配送中), delivered(已送达), cancelled(已取消)",
+              "enum": ["pending", "accepted", "picking", "delivering", "delivered", "cancelled"]
+            },
+            "rider_name": {
+              "type": "string",
+              "description": "骑手姓名（可选）"
+            },
+            "rider_phone": {
+              "type": "string",
+              "description": "骑手电话（可选）"
+            }
+          },
+          "required": ["order_no", "status"]
+        },
+        "examples": [
+          {"order_no": "ORD20260115001", "status": "accepted", "rider_name": "李师傅", "rider_phone": "13900139000"}
+        ]
+      },
+      {
+        "name": "switch_store",
+        "description": "切换当前门店",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "要切换到的门店ID"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            }
+          },
+          "required": ["store_id", "user_id"]
+        },
+        "examples": [
+          {"store_id": "2", "user_id": "user_001"}
+        ]
+      },
+      {
+        "name": "get_current_store",
+        "description": "获取当前选择的门店",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "description": "用户ID"
+            }
+          },
+          "required": ["user_id"]
+        },
+        "examples": [
+          {"user_id": "user_001"}
+        ]
+      },
+      {
+        "name": "get_printer_config",
+        "description": "获取打印机配置",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "description": "门店ID，不填则返回默认门店"
+            }
+          }
+        },
+        "examples": [
+          {},
+          {"store_id": "1"}
+        ]
+      },
+      {
+        "name": "export_data",
+        "description": "导出数据",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "data_type": {
+              "type": "string",
+              "description": "数据类型：orders(订单), dishes(菜品), members(会员), revenue(营收)",
+              "enum": ["orders", "dishes", "members", "revenue"]
+            },
+            "start_date": {
+              "type": "string",
+              "description": "开始日期，格式：YYYY-MM-DD"
+            },
+            "end_date": {
+              "type": "string",
+              "description": "结束日期，格式：YYYY-MM-DD"
+            },
+            "format": {
+              "type": "string",
+              "description": "导出格式：excel, csv, json",
+              "enum": ["excel", "csv", "json"]
+            },
+            "store_id": {
+              "type": "string",
+              "description": "门店ID（可选）"
+            }
+          },
+          "required": ["data_type", "start_date", "end_date", "format"]
+        },
+        "examples": [
+          {"data_type": "orders", "start_date": "2026-01-01", "end_date": "2026-01-31", "format": "excel", "store_id": "1"}
+        ]
+      }
+    ],
+    "resources": [
+      {
+        "name": "menu",
+        "description": "餐厅完整菜单",
+        "uri": "restaurant://menu"
+      },
+      {
+        "name": "store_info",
+        "description": "门店基本信息",
+        "uri": "restaurant://store/{store_id}"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/370205504-cmyk/yushan-ai-cashier-assistant.git"
+  },
+  "endpoints": {
+    "api": "https://mcp.yushan-ai-cashier.com/api/v1",
+    "admin": "https://mcp.yushan-ai-cashier.com/admin",
+    "customer": "https://mcp.yushan-ai-cashier.com/mobile"
+  },
+  "deployment": {
+    "platform": "tencent-cloud-scf",
+    "runtime": "Node.js 18.x",
+    "memory": 512,
+    "timeout": 30
+  }
+}

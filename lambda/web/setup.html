@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨姗AI收银助手 - 配置向导</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .progress {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        .step {
+            text-align: center;
+            flex: 1;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+        .step-label {
+            font-size: 13px;
+            color: #666;
+        }
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: bold;
+        }
+        .content {
+            padding: 40px;
+        }
+        .step-content {
+            display: none;
+        }
+        .step-content.active {
+            display: block;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        .detected-item {
+            padding: 16px;
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .detected-icon {
+            font-size: 24px;
+        }
+        .qr-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .qr-card {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .success-icon {
+            font-size: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            text-align: center;
+            color: #10b981;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 雨姗AI收银助手</h1>
+            <p>5分钟完成配置，让AI帮您做生意</p>
+        </div>
+        
+        <div class="progress">
+            <div class="step active" id="step1-indicator">
+                <div class="step-circle">1</div>
+                <div class="step-label">检测收银</div>
+            </div>
+            <div class="step" id="step2-indicator">
+                <div class="step-circle">2</div>
+                <div class="step-label">配置收银</div>
+            </div>
+            <div class="step" id="step3-indicator">
+                <div class="step-circle">3</div>
+                <div class="step-label">生成二维码</div>
+            </div>
+            <div class="step" id="step4-indicator">
+                <div class="step-circle">4</div>
+                <div class="step-label">配置打印机</div>
+            </div>
+            <div class="step" id="step5-indicator">
+                <div class="step-circle">5</div>
+                <div class="step-label">完成</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="step-content active" id="step1">
+                <h2>🔍 步骤1：检测本地收银系统</h2>
+                <p style="color: #666; margin-bottom: 24px;">正在扫描您的电脑，检测已安装的收银系统...</p>
+                
+                <div id="detected-systems">
+                    <div class="detected-item">
+                        <span class="detected-icon">✅</span>
+                        <div>
+                            <strong>美团收银</strong>
+                            <p style="color: #666; font-size: 12px; margin: 4px 0 0;">检测到数据库连接</p>
+                        </div>
+                    </div>
+                    <div class="detected-item">
+                        <span class="detected-icon">✅</span>
+                        <div>
+                            <strong>80mm热敏打印机</strong>
+                            <p style="color: #666; font-size: 12px; margin: 4px 0 0;">已就绪</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goToStep(2)">下一步</button>
+                </div>
+            </div>
+            
+            <div class="step-content" id="step2">
+                <h2>⚙️ 步骤2：配置收银系统对接</h2>
+                
+                <div class="form-group">
+                    <label>选择收银系统</label>
+                    <select id="cashier-type">
+                        <option value="meituan">美团收银</option>
+                        <option value="yinbao">银豹</option>
+                        <option value="hualala">哗啦啦</option>
+                        <option value="sixun">思迅</option>
+                        <option value="kemai">科脉</option>
+                        <option value="db">数据库直连</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>数据权限</label>
+                    <select id="data-mode">
+                        <option value="read">只读模式（推荐，安全）</option>
+                        <option value="write">读写模式（需授权）</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>数据库主机</label>
+                    <input type="text" id="db-host" value="localhost">
+                </div>
+                
+                <div class="form-group">
+                    <label>数据库端口</label>
+                    <input type="number" id="db-port" value="3306">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">下一步</button>
+                </div>
+            </div>
+            
+            <div class="step-content" id="step3">
+                <h2>📱 步骤3：生成店铺码和桌码</h2>
+                
+                <div class="form-group">
+                    <label>店铺名称</label>
+                    <input type="text" id="store-name" placeholder="例如：雨姗餐厅">
+                </div>
+                
+                <div class="form-group">
+                    <label>桌位数量</label>
+                    <input type="number" id="table-count" value="10">
+                </div>
+                
+                <div class="form-group">
+                    <label>店铺地址</label>
+                    <input type="text" id="store-address" placeholder="可选">
+                </div>
+                
+                <div class="form-group">
+                    <label>联系电话</label>
+                    <input type="tel" id="store-phone" placeholder="可选">
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateQRCodes()">生成二维码</button>
+                
+                <div class="qr-preview" id="qr-preview" style="margin-top: 20px;"></div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">下一步</button>
+                </div>
+            </div>
+            
+            <div class="step-content" id="step4">
+                <h2>🖨️ 步骤4：配置打印机</h2>
+                
+                <div class="form-group">
+                    <label>选择打印机</label>
+                    <select id="printer-type">
+                        <option value="escpos-80">80mm热敏打印机</option>
+                        <option value="escpos-58">58mm热敏打印机</option>
+                        <option value="windows">Windows默认打印机</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>打印场景</label>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" checked> 订单小票
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" checked> 收银小票
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox"> 厨房小票
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>打印份数</label>
+                    <input type="number" id="print-copies" value="1">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">下一步</button>
+                </div>
+            </div>
+            
+            <div class="step-content" id="step5">
+                <div class="success-icon">🎉</div>
+                <div class="success-message">配置完成！</div>
+                <p style="text-align: center; color: #666; line-height: 1.8;">
+                    恭喜您完成了所有配置！<br>
+                    现在您可以开始使用雨姗AI收银助手了。
+                </p>
+                
+                <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 20px; margin: 24px 0;">
+                    <h3 style="color: #166534; margin-bottom: 12px;">📋 下一步操作</h3>
+                    <ol style="color: #666; line-height: 2;">
+                        <li>将店铺码打印出来，贴在前台</li>
+                        <li>将桌码打印出来，贴在每张餐桌上</li>
+                        <li>访问管理后台：<a href="#" style="color: #667eea;">http://localhost:3000/admin</a></li>
+                        <li>如有问题，请查看使用说明文档</li>
+                    </ol>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="finishSetup()">完成，进入系统</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        
+        function goToStep(step) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active', 'completed'));
+            
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}-indicator`).classList.add('completed');
+            }
+            
+            document.getElementById(`step${step}`).classList.add('active');
+            document.getElementById(`step${step}-indicator`).classList.add('active');
+            
+            currentStep = step;
+        }
+        
+        function generateQRCodes() {
+            const count = parseInt(document.getElementById('table-count').value);
+            const preview = document.getElementById('qr-preview');
+            preview.innerHTML = '';
+            
+            const storeDiv = document.createElement('div');
+            storeDiv.className = 'qr-card';
+            storeDiv.innerHTML = `
+                <div class="qr-placeholder">店铺码</div>
+                <div style="font-size: 12px; color: #666;">通用扫码点单</div>
+            `;
+            preview.appendChild(storeDiv);
+            
+            for (let i = 1; i <= Math.min(count, 8); i++) {
+                const div = document.createElement('div');
+                div.className = 'qr-card';
+                div.innerHTML = `
+                    <div class="qr-placeholder">${i}号桌</div>
+                    <div style="font-size: 12px; color: #666;">桌码 ${i}号</div>
+                `;
+                preview.appendChild(div);
+            }
+            
+            if (count > 8) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = 'qr-card';
+                moreDiv.innerHTML = `
+                    <div class="qr-placeholder">...</div>
+                    <div style="font-size: 12px; color: #666;">还有 ${count - 8} 个桌码</div>
+                `;
+                preview.appendChild(moreDiv);
+            }
+        }
+        
+        function finishSetup() {
+            alert('配置完成！即将跳转到管理后台...');
+            window.location.href = '/admin';
+        }
+    </script>
+</body>
+</html>

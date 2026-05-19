@@ -1,0 +1,112 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yushan-ai-cashier-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-yushan2024}
+      - DB_NAME=${DB_NAME:-yushan_restaurant}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-change-this-in-production-please}
+      - ADMIN_API_KEY=${ADMIN_API_KEY:-admin-secret-key-change-in-production}
+      - WECHAT_APPID=${WECHAT_APPID:-}
+      - WECHAT_MCHID=${WECHAT_MCHID:-}
+      - WECHAT_APIKEY=${WECHAT_APIKEY:-}
+      - ALIPAY_APPID=${ALIPAY_APPID:-}
+    volumes:
+      - ./lambda/uploads:/app/uploads
+      - ./lambda/logs:/app/logs
+      - ./backups:/app/backups
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - yushan-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mysql:
+    image: mysql:8.0
+    container_name: yushan-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-yushan2024}
+      - MYSQL_DATABASE=${DB_NAME:-yushan_restaurant}
+      - TZ=Asia/Shanghai
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./lambda/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - yushan-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-yushan2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:7-alpine
+    container_name: yushan-redis
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - yushan-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+
+  nginx:
+    image: nginx:alpine
+    container_name: yushan-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./lambda/web:/usr/share/nginx/html:ro
+    depends_on:
+      - app
+    networks:
+      - yushan-network
+    profiles:
+      - with-nginx
+
+networks:
+  yushan-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local

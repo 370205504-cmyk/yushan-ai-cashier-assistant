@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雨姗AI收银助手 - 管理后台</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .logo {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .header-info h1 { 
+            color: #1a1a2e; 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 4px; 
+            letter-spacing: -0.5px;
+        }
+        
+        .header-info p { 
+            color: #7a7a9d; 
+            font-size: 13px; 
+            font-weight: 500;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .time-display {
+            background: #f0f4ff;
+            padding: 10px 20px;
+            border-radius: 12px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .stat-icon.blue { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.green { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .stat-icon.cyan { background: linear-gradient(135deg, #00b4db, #0083b0); }
+        
+        .stat-info { flex: 1; }
+        
+        .stat-label { 
+            color: #7a7a9d; 
+            font-size: 13px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+        }
+        
+        .stat-value { 
+            color: #1a1a2e; 
+            font-size: 32px; 
+            font-weight: 800; 
+            letter-spacing: -1px;
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tab-buttons { 
+            display: flex; 
+            gap: 8px; 
+            padding: 20px 24px; 
+            background: #f8f9ff; 
+            border-bottom: 1px solid #e8eaf6; 
+            flex-wrap: wrap; 
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            background: #eef2ff;
+            color: #667eea;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .tab-content { 
+            padding: 28px; 
+            display: none; 
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 240px;
+            padding: 12px 18px;
+            border: 2px solid #e8eaf6;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafbff;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .filter-select {
+            padding: 12px 18px;
+            border: 2px solid #e8eaf6;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fafbff;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #f8f9ff, #e8eaf6);
+            color: #667eea;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #4b5563;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background: #f8f9ff;
+        }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-confirmed { background: #d1fae5; color: #059669; }
+        .status-preparing { background: #dbeafe; color: #2563eb; }
+        .status-ready { background: #e0f2fe; color: #0891b2; }
+        .status-completed { background: #f3f4f6; color: #4b5563; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #9ca3af;
+        }
+        
+        .empty-state .icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #9ca3af;
+        }
+        
+        .dish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .dish-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .dish-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .dish-image {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, #f5f7fa, #e4e8eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .dish-content {
+            padding: 18px;
+        }
+        
+        .dish-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 6px;
+        }
+        
+        .dish-desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .dish-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .tag-recommend { background: #fef3c7; color: #d97706; }
+        .tag-signature { background: #d1fae5; color: #059669; }
+        .tag-spicy { background: #fee2e2; color: #dc2626; }
+        
+        .dish-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dish-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: #667eea;
+        }
+        
+        .dish-price span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            padding: 24px 28px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #9ca3af;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .modal-body {
+            padding: 28px;
+        }
+        
+        .modal-footer {
+            padding: 20px 28px;
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 28px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast.success { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .toast.error { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .toast.info { background: linear-gradient(135deg, #667eea, #764ba2); }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .queue-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .queue-stat {
+            background: linear-gradient(135deg, #f8f9ff, #e8eaf6);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .queue-stat .number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 6px;
+        }
+        
+        .queue-stat .label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            color: #374151;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">🍜</div>
+                <div class="header-info">
+                    <h1>雨姗AI收银助手</h1>
+                    <p>智能餐饮管理系统 · 让经营更高效</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="time-display" id="currentTime">--:--</div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">📊</div>
+                <div class="stat-info">
+                    <div class="stat-label">今日订单</div>
+                    <div class="stat-value" id="stat-orders">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">💰</div>
+                <div class="stat-info">
+                    <div class="stat-label">今日营收</div>
+                    <div class="stat-value" id="stat-revenue">¥0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">⏰</div>
+                <div class="stat-info">
+                    <div class="stat-label">待处理订单</div>
+                    <div class="stat-value" id="stat-pending">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">👥</div>
+                <div class="stat-info">
+                    <div class="stat-label">排队等待</div>
+                    <div class="stat-value" id="stat-queue">0</div>
+                </div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" onclick="goToLLMConfig()">
+                <div class="stat-icon cyan">🤖</div>
+                <div class="stat-info">
+                    <div class="stat-label">AI智能助手</div>
+                    <div class="stat-value" id="stat-llm-status" style="font-size: 18px; color: #7a7a9d;">加载中...</div>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); goToLLMConfig();">⚙️ 配置</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showTab('orders')">订单管理</button>
+                <button class="tab-btn" onclick="showTab('dishes')">菜品管理</button>
+                <button class="tab-btn" onclick="showTab('queue')">排队管理</button>
+                <button class="tab-btn" onclick="showTab('members')">会员管理</button>
+                <button class="tab-btn" onclick="showTab('payments')">支付记录</button>
+                <button class="tab-btn" onclick="showTab('settings')">系统设置</button>
+            </div>
+            
+            <div id="tab-orders" class="tab-content active">
+                <div class="toolbar">
+                    <input type="text" class="search-input" id="order-search" placeholder="搜索订单号或手机号...">
+                    <select class="filter-select" id="order-status-filter" onchange="loadOrders()">
+                        <option value="">全部状态</option>
+                        <option value="pending">待确认</option>
+                        <option value="confirmed">已确认</option>
+                        <option value="preparing">制作中</option>
+                        <option value="ready">待取餐</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadOrders()">🔄 刷新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>顾客</th>
+                            <th>菜品数</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>支付</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <tr><td colspan="8" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="tab-dishes" class="tab-content">
+                <div class="toolbar">
+                    <input type="text" class="search-input" id="dish-search" placeholder="搜索菜品...">
+                    <select class="filter-select" id="dish-category-filter" onchange="loadDishes()">
+                        <option value="">全部分类</option>
+                        <option value="招牌菜">招牌菜</option>
+                        <option value="特色硬菜">特色硬菜</option>
+                        <option value="热菜">热菜</option>
+                        <option value="凉菜">凉菜</option>
+                        <option value="主食">主食</option>
+                        <option value="饮品">饮品</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="showDishModal()">➕ 添加菜品</button>
+                </div>
+                <div class="dish-grid" id="dishes-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+            
+            <div id="tab-queue" class="tab-content">
+                <div class="queue-info" id="queue-stats">
+                    <div class="queue-stat">
+                        <div class="number" id="queue-small">0</div>
+                        <div class="label">小桌等待</div>
+                    </div>
+                    <div class="queue-stat">
+                        <div class="number" id="queue-medium">0</div>
+                        <div class="label">中桌等待</div>
+                    </div>
+                    <div class="queue-stat">
+                        <div class="number" id="queue-large">0</div>
+                        <div class="label">大桌等待</div>
+                    </div>
+                    <div class="queue-stat">
+                        <div class="number" id="queue-total">0</div>
+                        <div class="label">总等待数</div>
+                    </div>
+                </div>
+                <div class="toolbar">
+                    <button class="btn btn-success" onclick="callNextQueue()">📢 叫下一位</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>排队号</th>
+                            <th>桌型</th>
+                            <th>人数</th>
+                            <th>状态</th>
+                            <th>等待时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-table-body">
+                        <tr><td colspan="6" class="empty-state">
+                            <div class="icon">🎫</div>
+                            <p>暂无排队信息</p>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="tab-members" class="tab-content">
+                <div class="toolbar">
+                    <input type="text" class="search-input" id="member-search" placeholder="搜索手机号或姓名...">
+                    <button class="btn btn-primary" onclick="loadMembers()">🔍 搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>会员号</th>
+                            <th>手机号</th>
+                            <th>姓名</th>
+                            <th>等级</th>
+                            <th>积分</th>
+                            <th>余额</th>
+                            <th>订单数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-table-body">
+                        <tr><td colspan="8" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="tab-payments" class="tab-content">
+                <div class="toolbar">
+                    <input type="date" id="payment-date-from">
+                    <input type="date" id="payment-date-to">
+                    <select class="filter-select" id="payment-method-filter">
+                        <option value="">全部方式</option>
+                        <option value="wechat">微信支付</option>
+                        <option value="alipay">支付宝</option>
+                        <option value="balance">余额支付</option>
+                        <option value="cash">现金</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadPayments()">🔍 搜索</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>支付流水号</th>
+                            <th>订单号</th>
+                            <th>金额</th>
+                            <th>方式</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-table-body">
+                        <tr><td colspan="6" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="tab-settings" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🏪 门店信息</h3>
+                        <div class="form-group">
+                            <label>门店名称</label>
+                            <input type="text" id="setting-store-name" value="雨姗AI收银助手">
+                        </div>
+                        <div class="form-group">
+                            <label>联系电话</label>
+                            <input type="text" id="setting-store-phone" value="0370-628-8888">
+                        </div>
+                        <div class="form-group">
+                            <label>门店地址</label>
+                            <textarea id="setting-store-address" rows="3">河南省商丘市</textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveStoreSettings()">💾 保存设置</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📶 WiFi设置</h3>
+                        <div class="form-group">
+                            <label>WiFi名称</label>
+                            <input type="text" id="setting-wifi-name" value="雨姗AI收银助手免费WiFi">
+                        </div>
+                        <div class="form-group">
+                            <label>WiFi密码</label>
+                            <input type="text" id="setting-wifi-password" value="88888888">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveWifiSettings()">💾 保存设置</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⏰ 营业时间</h3>
+                        <div class="form-group">
+                            <label>开门时间</label>
+                            <input type="time" id="setting-open-time" value="09:00">
+                        </div>
+                        <div class="form-group">
+                            <label>打烊时间</label>
+                            <input type="time" id="setting-close-time" value="22:00">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveBusinessSettings()">💾 保存设置</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⚙️ 订单设置</h3>
+                        <div class="form-group">
+                            <label>自动确认订单</label>
+                            <select id="setting-auto-confirm">
+                                <option value="1">开启</option>
+                                <option value="0">关闭</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>自动打印</label>
+                            <select id="setting-print-enabled">
+                                <option value="1">开启</option>
+                                <option value="0">关闭</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveOrderSettings()">💾 保存设置</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🤖 AI智能助手设置</h3>
+                        <div id="llm-status-display" style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: #f0f4ff;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span id="llm-status-icon">⚙️</span>
+                                <span id="llm-status-text" style="font-weight: 600; color: #667eea;">加载中...</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>大模型提供商</label>
+                            <select id="llm-provider" onchange="onProviderChange()">
+                                <option value="">请选择...</option>
+                                <option value="deepseek">DeepSeek</option>
+                                <option value="moonshot">Moonshot (Kimi)</option>
+                                <option value="qwen">通义千问 (Qwen)</option>
+                                <option value="zhipu">智谱AI (GLM)</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                                <option value="openai">OpenAI (GPT)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>API Key</label>
+                            <div style="position: relative;">
+                                <input type="password" id="llm-api-key" placeholder="请输入API Key" style="padding-right: 40px;">
+                                <button type="button" onclick="toggleApiKeyVisibility()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px;">👁️</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>API Base URL（可选）</label>
+                            <input type="text" id="llm-base-url" placeholder="留空则使用默认地址">
+                        </div>
+                        <div class="form-group">
+                            <label>API协议格式</label>
+                            <select id="llm-api-type">
+                                <option value="openai">OpenAI兼容</option>
+                                <option value="anthropic">Anthropic兼容</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>模型</label>
+                            <select id="llm-model">
+                                <option value="">请先选择提供商</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="saveLLMSettings()">💾 保存配置</button>
+                            <button class="btn btn-success" onclick="testLLMConnection()">🔗 测试连接</button>
+                        </div>
+                        <div id="llm-test-result" style="margin-top: 12px; display: none;" class="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="order-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 订单详情</h2>
+                <button class="modal-close" onclick="closeModal('order-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="order-modal-content">
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('order-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="member-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 会员详情</h2>
+                <button class="modal-close" onclick="closeModal('member-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="member-modal-content">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="rechargeMember()">💳 充值</button>
+                <button class="btn" onclick="closeModal('member-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="dish-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dish-modal-title">➕ 添加菜品</h2>
+                <button class="modal-close" onclick="closeModal('dish-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="dish-form">
+                    <input type="hidden" id="dish-id">
+                    <div class="form-group">
+                        <label>菜品名称 *</label>
+                        <input type="text" id="dish-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>分类 *</label>
+                        <select id="dish-category" required>
+                            <option value="招牌菜">招牌菜</option>
+                            <option value="特色硬菜">特色硬菜</option>
+                            <option value="热菜">热菜</option>
+                            <option value="凉菜">凉菜</option>
+                            <option value="主食">主食</option>
+                            <option value="饮品">饮品</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>价格 *</label>
+                        <input type="number" id="dish-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>描述</label>
+                        <textarea id="dish-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>制作时间（分钟）</label>
+                        <input type="number" id="dish-prep-time" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label>辣度</label>
+                        <select id="dish-spicy">
+                            <option value="0">不辣</option>
+                            <option value="1">微辣</option>
+                            <option value="2">中辣</option>
+                            <option value="3">特辣</option>
+                            <option value="4">爆辣</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dish-recommend">
+                        <label for="dish-recommend">推荐菜品</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dish-signature">
+                        <label for="dish-signature">招牌菜</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dish-available" checked>
+                        <label for="dish-available">上架销售</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveDish()">💾 保存</button>
+                <button class="btn" onclick="closeModal('dish-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentMemberId = null;
+        
+        const LLM_PROVIDERS = {
+            deepseek: { name: 'DeepSeek', models: ['deepseek-chat', 'deepseek-r1-chat', 'deepseek-v4-pro', 'deepseek-v4-flash'], url: 'https://platform.deepseek.com/', apiType: 'openai', baseUrl: 'https://api.deepseek.com/v1' },
+            moonshot: { name: 'Moonshot (Kimi)', models: ['moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k', 'moonshot-v1-256k'], url: 'https://platform.moonshot.cn/', apiType: 'openai', baseUrl: 'https://api.moonshot.cn/v1' },
+            qwen: { name: '通义千问 (Qwen)', models: ['qwen-turbo', 'qwen-plus', 'qwen-max', 'qwen-max-longcontext'], url: 'https://bailian.console.aliyun.com/', apiType: 'openai', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+            zhipu: { name: '智谱AI (GLM)', models: ['glm-4', 'glm-4-flash', 'glm-3-turbo', 'glm-4-air'], url: 'https://open.bigmodel.cn/', apiType: 'openai', baseUrl: 'https://open.bigmodel.cn/api/paas/v4' },
+            anthropic: { name: 'Anthropic (Claude)', models: ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'], url: 'https://console.anthropic.com/', apiType: 'anthropic', baseUrl: 'https://api.anthropic.com/v1' },
+            openai: { name: 'OpenAI (GPT)', models: ['gpt-4o', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'], url: 'https://platform.openai.com/', apiType: 'openai', baseUrl: 'https://api.openai.com/v1' }
+        };
+        
+        async function loadLLMSettings() {
+            try {
+                const res = await fetch('/api/v1/llm-config/status');
+                const data = await res.json();
+                const statusIcon = document.getElementById('llm-status-icon');
+                const statusText = document.getElementById('llm-status-text');
+                
+                if (data.success && data.data && data.data.enabled && data.data.provider) {
+                    statusIcon.textContent = '✅';
+                    statusText.textContent = `已配置：${LLM_PROVIDERS[data.data.provider]?.name || data.data.provider}`;
+                    statusText.style.color = '#155724';
+                    document.getElementById('llm-provider').value = data.data.provider;
+                    onProviderChange(data.data.provider);
+                    if (data.data.model) {
+                        document.getElementById('llm-model').value = data.data.model;
+                    }
+                    if (data.data.apiType) {
+                        document.getElementById('llm-api-type').value = data.data.apiType;
+                    }
+                    if (data.data.baseUrl) {
+                        document.getElementById('llm-base-url').value = data.data.baseUrl;
+                    }
+                } else {
+                    statusIcon.textContent = '⚙️';
+                    statusText.textContent = '未配置';
+                    statusText.style.color = '#667eea';
+                }
+            } catch (e) {
+                console.error('加载LLM配置失败:', e);
+            }
+        }
+        
+        function onProviderChange(provider) {
+            const providerSelect = document.getElementById('llm-provider');
+            const modelSelect = document.getElementById('llm-model');
+            const apiTypeSelect = document.getElementById('llm-api-type');
+            const baseUrlInput = document.getElementById('llm-base-url');
+            provider = provider || providerSelect.value;
+            
+            if (provider && LLM_PROVIDERS[provider]) {
+                const models = LLM_PROVIDERS[provider].models;
+                modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+                modelSelect.disabled = false;
+                // 自动设置API协议类型
+                if (LLM_PROVIDERS[provider].apiType) {
+                    apiTypeSelect.value = LLM_PROVIDERS[provider].apiType;
+                }
+                // 自动设置默认Base URL
+                if (LLM_PROVIDERS[provider].baseUrl) {
+                    baseUrlInput.value = LLM_PROVIDERS[provider].baseUrl;
+                }
+            } else {
+                modelSelect.innerHTML = '<option value="">请先选择提供商</option>';
+                modelSelect.disabled = true;
+            }
+        }
+        
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('llm-api-key');
+            const btn = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+        
+        async function saveLLMSettings() {
+            const provider = document.getElementById('llm-provider').value;
+            const apiKey = document.getElementById('llm-api-key').value;
+            const baseUrl = document.getElementById('llm-base-url').value;
+            const apiType = document.getElementById('llm-api-type').value;
+            const model = document.getElementById('llm-model').value;
+            
+            if (!provider) {
+                showToast('请选择大模型提供商', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/v1/llm-config/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, apiKey: apiKey || undefined, baseUrl, apiType, model })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('LLM配置已保存', 'success');
+                    loadLLMSettings();
+                    loadLLMStatus();
+                } else {
+                    showToast('保存失败: ' + (data.message || '未知错误'), 'error');
+                }
+            } catch (e) {
+                console.error('保存LLM配置失败:', e);
+                showToast('保存失败，请检查网络连接', 'error');
+            }
+        }
+        
+        async function testLLMConnection() {
+            const provider = document.getElementById('llm-provider').value;
+            const apiKey = document.getElementById('llm-api-key').value;
+            const baseUrl = document.getElementById('llm-base-url').value;
+            const apiType = document.getElementById('llm-api-type').value;
+            const model = document.getElementById('llm-model').value;
+            
+            const resultDiv = document.getElementById('llm-test-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '正在测试连接...';
+            resultDiv.className = 'alert';
+            
+            try {
+                const res = await fetch('/api/v1/llm-config/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, apiKey, baseUrl, apiType, model })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    resultDiv.textContent = '✅ 连接成功！' + (data.message || 'API Key有效');
+                    resultDiv.className = 'alert success';
+                } else {
+                    resultDiv.textContent = '❌ 连接失败：' + (data.message || '请检查配置');
+                    resultDiv.className = 'alert error';
+                }
+            } catch (e) {
+                console.error('测试连接失败:', e);
+                resultDiv.textContent = '❌ 测试失败：' + e.message;
+                resultDiv.className = 'alert error';
+            }
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit' 
+                });
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        async function loadLLMStatus() {
+            try {
+                const res = await fetch('/api/v1/llm-config/status');
+                const data = await res.json();
+                const el = document.getElementById('stat-llm-status');
+                if (data.success && data.data) {
+                    if (data.data.enabled && data.data.provider) {
+                        el.textContent = '✅ 已启用';
+                        el.style.color = '#155724';
+                    } else {
+                        el.textContent = '⚙️ 未启用';
+                        el.style.color = '#667eea';
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                const el = document.getElementById('stat-llm-status');
+                el.textContent = '⚙️ 未启用';
+                el.style.color = '#667eea';
+            }
+        }
+        
+        function goToLLMConfig() {
+            window.location.href = '/llm-config';
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            const buttons = document.querySelectorAll('.tab-btn');
+            const tabNames = ['orders', 'dishes', 'queue', 'members', 'payments', 'settings'];
+            const index = tabNames.indexOf(tabName);
+            if (index >= 0 && buttons[index]) {
+                buttons[index].classList.add('active');
+            }
+            if (tabName !== 'settings') {
+                event && event.target && event.target.classList.add('active');
+            }
+        }
+        
+        function goToSettings() {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-settings').classList.add('active');
+            const buttons = document.querySelectorAll('.tab-btn');
+            if (buttons[5]) {
+                buttons[5].classList.add('active');
+            }
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        async function loadStats() {
+            try {
+                document.getElementById('stat-orders').textContent = '2';
+                document.getElementById('stat-revenue').textContent = '¥390';
+                document.getElementById('stat-pending').textContent = '1';
+                document.getElementById('stat-queue').textContent = '0';
+            } catch (error) {
+                console.error('加载统计失败:', error);
+            }
+        }
+        
+        async function loadOrders() {
+            const tbody = document.getElementById('orders-table-body');
+            const demoOrders = [
+                { 
+                    orderId: 'ORD20260514001', 
+                    phone: '138****0001', 
+                    items: [{name: '招牌鱼头泡饭'}], 
+                    totalAmount: 88, 
+                    status: 'pending', 
+                    paymentStatus: 'paid', 
+                    createdAt: '2026-05-14T10:30:00' 
+                },
+                { 
+                    orderId: 'ORD20260514002', 
+                    phone: '139****0002', 
+                    items: [{name: '招牌烧肉'}, {name: '米饭'}], 
+                    totalAmount: 65, 
+                    status: 'preparing', 
+                    paymentStatus: 'paid', 
+                    createdAt: '2026-05-14T11:00:00' 
+                }
+            ];
+            
+            const statusMap = {
+                pending: '待确认',
+                confirmed: '已确认',
+                preparing: '制作中',
+                ready: '待取餐',
+                completed: '已完成',
+                cancelled: '已取消'
+            };
+            
+            tbody.innerHTML = demoOrders.map(order => `
+                <tr>
+                    <td><strong>${order.orderId}</strong></td>
+                    <td>${order.phone || '到店顾客'}</td>
+                    <td>${order.items ? order.items.length : 0} 道菜</td>
+                    <td><strong>¥${order.totalAmount}</strong></td>
+                    <td><span class="status-badge status-${order.status}">${statusMap[order.status]}</span></td>
+                    <td>${order.paymentStatus === 'paid' ? '已支付' : '待支付'}</td>
+                    <td>${new Date(order.createdAt).toLocaleString('zh-CN')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewOrder('${order.orderId}')">查看</button>
+                        ${order.status === 'pending' ? `
+                            <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId}', 'confirmed')">确认</button>
+                            <button class="btn btn-sm btn-danger" onclick="updateOrderStatus('${order.orderId}', 'cancelled')">取消</button>
+                        ` : ''}
+                        ${order.status === 'confirmed' ? `
+                            <button class="btn btn-sm" style="background: #ffc107; color: #333;" onclick="updateOrderStatus('${order.orderId}', 'preparing')">制作</button>
+                        ` : ''}
+                        ${order.status === 'preparing' ? `
+                            <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId}', 'ready')">完成</button>
+                        ` : ''}
+                        ${order.status === 'ready' ? `
+                            <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.orderId}', 'completed')">完成</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        async function viewOrder(orderId) {
+            document.getElementById('order-modal-content').innerHTML = `
+                <p style="margin-bottom: 12px;"><strong>订单号：</strong>${orderId}</p>
+                <p style="margin-bottom: 12px;"><strong>状态：</strong><span class="status-badge status-pending">处理中</span></p>
+                <p style="margin-bottom: 12px;"><strong>金额：</strong><span style="color: #667eea; font-weight: 700; font-size: 20px;">¥88.00</span></p>
+                <p style="margin-bottom: 12px;"><strong>支付：</strong>已支付</p>
+                <p style="margin-bottom: 20px;"><strong>时间：</strong>2026-05-14 10:30:00</p>
+                <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 16px 0;">
+                <h4 style="margin-bottom: 12px; color: #374151;">菜品明细：</h4>
+                <p>招牌鱼头泡饭 x1 - ¥88</p>
+            `;
+            openModal('order-modal');
+        }
+        
+        async function updateOrderStatus(orderId, status) {
+            showToast('订单状态已更新', 'success');
+            loadOrders();
+            loadStats();
+        }
+        
+        async function loadDishes() {
+            const grid = document.getElementById('dishes-grid');
+            const demoDishes = [
+                { id: 1, name: '招牌鱼头泡饭', category: '招牌菜', price: 88, desc: '招牌菜，桌桌必点', isSignature: true, isRecommend: true, isAvailable: true, spicyLevel: 1 },
+                { id: 2, name: '招牌烧肉', category: '招牌菜', price: 58, desc: '肥而不腻，软糯香甜', isSignature: true, isRecommend: true, isAvailable: true, spicyLevel: 0 },
+                { id: 3, name: '酱焖娃娃鱼', category: '特色硬菜', price: 198, desc: '新鲜现杀，肉质鲜嫩', isSignature: false, isRecommend: true, isAvailable: true, spicyLevel: 2 },
+                { id: 4, name: '酸辣土豆丝', category: '热菜', price: 22, desc: '酸辣爽口', isSignature: false, isRecommend: false, isAvailable: true, spicyLevel: 2 },
+                { id: 5, name: '蒜蓉西兰花', category: '热菜', price: 26, desc: '健康营养', isSignature: false, isRecommend: false, isAvailable: true, spicyLevel: 0 },
+                { id: 6, name: '凉拌黄瓜', category: '凉菜', price: 16, desc: '清爽开胃', isSignature: false, isRecommend: false, isAvailable: true, spicyLevel: 1 }
+            ];
+            
+            const categoryFilter = document.getElementById('dish-category-filter').value;
+            const searchFilter = document.getElementById('dish-search').value.toLowerCase();
+            
+            const filtered = demoDishes.filter(dish => {
+                const categoryMatch = !categoryFilter || dish.category === categoryFilter;
+                const searchMatch = !searchFilter || dish.name.toLowerCase().includes(searchFilter);
+                return categoryMatch && searchMatch;
+            });
+            
+            grid.innerHTML = filtered.map(dish => {
+                const spicyTag = dish.spicyLevel > 0 ? `<span class="tag tag-spicy">${'🌶️'.repeat(Math.min(dish.spicyLevel, 3))}</span>` : '';
+                const recommendTag = dish.isRecommend ? '<span class="tag tag-recommend">推荐</span>' : '';
+                const signatureTag = dish.isSignature ? '<span class="tag tag-signature">招牌</span>' : '';
+                const style = dish.isAvailable === false ? 'opacity: 0.5; pointer-events: none;' : '';
+                
+                const emojis = ['🍜', '🍲', '🥘', '🍗', '🥬', '🍚', '🥤'];
+                const emoji = emojis[dish.id % emojis.length];
+                
+                return `
+                    <div class="dish-card" style="${style}">
+                        <div class="dish-image">${emoji}</div>
+                        <div class="dish-content">
+                            <div class="dish-name">${dish.name}</div>
+                            <div class="dish-desc">${dish.desc || ''}</div>
+                            <div class="dish-tags">${recommendTag}${signatureTag}${spicyTag}</div>
+                            <div class="dish-bottom">
+                                <div class="dish-price"><span>¥</span>${dish.price}</div>
+                                <div>
+                                    <button class="btn btn-sm btn-primary" onclick="editDish(${dish.id})">编辑</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteDish(${dish.id})">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="icon">🍽️</div>
+                        <p>暂无菜品</p>
+                        <button class="btn btn-primary" onclick="showDishModal()">添加第一个菜品</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function showDishModal(dish = null) {
+            document.getElementById('dish-modal-title').textContent = dish ? '✏️ 编辑菜品' : '➕ 添加菜品';
+            if (dish) {
+                document.getElementById('dish-id').value = dish.id;
+                document.getElementById('dish-name').value = dish.name;
+                document.getElementById('dish-category').value = dish.category;
+                document.getElementById('dish-price').value = dish.price;
+                document.getElementById('dish-description').value = dish.desc || '';
+                document.getElementById('dish-prep-time').value = dish.prepTime || 15;
+                document.getElementById('dish-spicy').value = dish.spicyLevel || 0;
+                document.getElementById('dish-recommend').checked = dish.isRecommend;
+                document.getElementById('dish-signature').checked = dish.isSignature;
+                document.getElementById('dish-available').checked = dish.isAvailable !== false;
+            } else {
+                document.getElementById('dish-form').reset();
+                document.getElementById('dish-available').checked = true;
+            }
+            openModal('dish-modal');
+        }
+        
+        function editDish(id) {
+            const demoDishes = [
+                { id: 1, name: '招牌鱼头泡饭', category: '招牌菜', price: 88, desc: '招牌菜，桌桌必点', isSignature: true, isRecommend: true, isAvailable: true, spicyLevel: 1, prepTime: 25 },
+                { id: 2, name: '招牌烧肉', category: '招牌菜', price: 58, desc: '肥而不腻，软糯香甜', isSignature: true, isRecommend: true, isAvailable: true, spicyLevel: 0, prepTime: 20 }
+            ];
+            const dish = demoDishes.find(d => d.id === id);
+            if (dish) showDishModal(dish);
+        }
+        
+        function saveDish() {
+            showToast('菜品保存成功', 'success');
+            closeModal('dish-modal');
+            loadDishes();
+        }
+        
+        function deleteDish(id) {
+            if (!confirm('确定要删除这个菜品吗？')) return;
+            showToast('菜品已删除', 'success');
+            loadDishes();
+        }
+        
+        async function loadQueue() {
+            document.getElementById('queue-small').textContent = '0';
+            document.getElementById('queue-medium').textContent = '0';
+            document.getElementById('queue-large').textContent = '0';
+            document.getElementById('queue-total').textContent = '0';
+            
+            document.getElementById('queue-table-body').innerHTML = `
+                <tr><td colspan="6" class="empty-state">
+                    <div class="icon">🎫</div>
+                    <p>暂无排队信息</p>
+                </td></tr>
+            `;
+        }
+        
+        function callNextQueue() {
+            showToast('暂无排队', 'info');
+        }
+        
+        async function loadMembers() {
+            const tbody = document.getElementById('members-table-body');
+            const demoMembers = [
+                { memberNo: 'VIP001', phone: '138****0001', name: '张三', level: 'gold', points: 500, balance: 100, totalOrders: 20 },
+                { memberNo: 'VIP002', phone: '139****0002', name: '李四', level: 'silver', points: 300, balance: 50, totalOrders: 15 }
+            ];
+            
+            const levelMap = {
+                bronze: '青铜',
+                silver: '白银',
+                gold: '黄金',
+                platinum: '铂金'
+            };
+            
+            tbody.innerHTML = demoMembers.map(member => `
+                <tr>
+                    <td><strong>${member.memberNo}</strong></td>
+                    <td>${member.phone}</td>
+                    <td>${member.name || '-'}</td>
+                    <td><span class="status-badge status-confirmed">${levelMap[member.level] || member.level}</span></td>
+                    <td>${member.points}</td>
+                    <td>¥${member.balance}</td>
+                    <td>${member.totalOrders}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewMember('${member.memberNo}')">详情</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        async function viewMember(memberNo) {
+            currentMemberId = memberNo;
+            document.getElementById('member-modal-content').innerHTML = `
+                <p style="margin-bottom: 12px;"><strong>会员号：</strong>${memberNo}</p>
+                <p style="margin-bottom: 12px;"><strong>手机号：</strong>138****0001</p>
+                <p style="margin-bottom: 12px;"><strong>等级：</strong><span class="status-badge status-confirmed">黄金会员</span></p>
+                <p style="margin-bottom: 12px;"><strong>积分：</strong>${500}</p>
+                <p style="margin-bottom: 12px;"><strong>余额：</strong><span style="color: #667eea; font-weight: 700;">¥100</span></p>
+                <p style="margin-bottom: 12px;"><strong>总消费：</strong>¥2000</p>
+                <p><strong>总订单：</strong>20</p>
+            `;
+            openModal('member-modal');
+        }
+        
+        function rechargeMember() {
+            const amount = prompt('请输入充值金额：');
+            if (!amount || isNaN(amount)) return;
+            showToast('充值成功', 'success');
+            loadMembers();
+        }
+        
+        async function loadPayments() {
+            const tbody = document.getElementById('payments-table-body');
+            const demoPayments = [
+                { paymentNo: 'PAY20260514001', orderNo: 'ORD20260514001', amount: 88, method: 'wechat', status: 'completed', createdAt: '2026-05-14T10:30:00' },
+                { paymentNo: 'PAY20260514002', orderNo: 'ORD20260514002', amount: 65, method: 'alipay', status: 'completed', createdAt: '2026-05-14T11:00:00' }
+            ];
+            
+            const methodMap = {
+                wechat: '微信支付',
+                alipay: '支付宝',
+                balance: '余额支付',
+                cash: '现金'
+            };
+            
+            tbody.innerHTML = demoPayments.map(payment => `
+                <tr>
+                    <td><strong>${payment.paymentNo}</strong></td>
+                    <td>${payment.orderNo}</td>
+                    <td><strong>¥${payment.amount}</strong></td>
+                    <td>${methodMap[payment.method] || payment.method}</td>
+                    <td><span class="status-badge status-completed">完成</span></td>
+                    <td>${new Date(payment.createdAt).toLocaleString('zh-CN')}</td>
+                </tr>
+            `).join('');
+        }
+        
+        async function loadSettings() {
+        }
+        
+        async function saveStoreSettings() {
+            showToast('门店信息已保存', 'success');
+        }
+        
+        async function saveWifiSettings() {
+            showToast('WiFi设置已保存', 'success');
+        }
+        
+        async function saveBusinessSettings() {
+            showToast('营业时间已保存', 'success');
+        }
+        
+        async function saveOrderSettings() {
+            showToast('订单设置已保存', 'success');
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadOrders();
+            loadDishes();
+            loadQueue();
+            loadMembers();
+            loadSettings();
+            loadLLMSettings();
+            setInterval(() => {
+                loadStats();
+                loadOrders();
+                loadQueue();
+            }, 30000);
+            
+            document.getElementById('dish-search').addEventListener('input', loadDishes);
+        });
+    </script>
+</body>
+</html>

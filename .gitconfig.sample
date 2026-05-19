@@ -1,0 +1,79 @@
+# ============================================================
+# Git 配置模板文件
+# ============================================================
+# 使用说明:
+# 1. 复制此文件为 .gitconfig
+# 2. 修改用户信息为实际值
+# 3. 移除 credential.helper 配置或配置安全的凭证助手
+# ============================================================
+
+[user]
+    name = <YOUR_NAME>
+    email = <YOUR_EMAIL>
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[pull]
+    rebase = false
+
+[alias]
+    sync = !bash -c \"source git-sync.sh\"
+    save = !git add -A && git commit -m \"$1\" && git push
+
+# ============================================================
+# 安全配置说明
+# ============================================================
+# 凭证管理建议:
+# 1. 开发环境可以使用 cache 助手（临时缓存）
+#    [credential]
+#        helper = cache --timeout=3600
+#
+# 2. 生产环境建议使用更安全的凭证助手
+#    - macOS: helper = osxkeychain
+#    - Windows: helper = wincred
+#    - Linux: helper = libsecret
+#
+# 3. 禁止使用 store 助手（明文存储密码）
+#    # 不推荐: helper = store --file ~/.git-credentials
+# ============================================================# ============================================================
+# Git 配置模板文件
+# ============================================================
+# 使用说明:
+# 1. 复制此文件为 .gitconfig
+# 2. 修改用户信息为实际值
+# 3. 移除 credential.helper 配置或配置安全的凭证助手
+# ============================================================
+
+[user]
+    name = <YOUR_NAME>
+    email = <YOUR_EMAIL>
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[pull]
+    rebase = false
+
+[alias]
+    sync = !bash -c \"source git-sync.sh\"
+    save = !git add -A && git commit -m \"$1\" && git push
+
+# ============================================================
+# 安全配置说明
+# ============================================================
+# 凭证管理建议:
+# 1. 开发环境可以使用 cache 助手（临时缓存）
+#    [credential]
+#        helper = cache --timeout=3600
+#
+# 2. 生产环境建议使用更安全的凭证助手
+#    - macOS: helper = osxkeychain
+#    - Windows: helper = wincred
+#    - Linux: helper = libsecret
+#
+# 3. 禁止使用 store 助手（明文存储密码）
+#    # 不推荐: helper = store --file ~/.git-credentials
+# ============================================================

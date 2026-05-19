@@ -1,0 +1,24 @@
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /agent
+Disallow: /monitor
+Disallow: /auth
+Disallow: /logs
+Disallow: /lambda
+Disallow: /backup
+Disallow: /.env
+Disallow: /docker-compose.yml
+Disallow: /ecosystem.config.js
+
+User-agent: Googlebot
+Disallow: /admin
+Disallow: /api
+Disallow: /agent
+
+User-agent: Baiduspider
+Disallow: /admin
+Disallow: /api
+Disallow: /agent
+
+Sitemap: /sitemap.xml

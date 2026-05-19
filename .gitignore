@@ -1,0 +1,90 @@
+# ============================================================
+# 雨姗AI收银助手 - .gitignore 配置
+# ============================================================
+
+# Node.js 依赖
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# 环境配置文件（敏感信息）
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+
+# 数据目录
+data/
+uploads/
+logs/
+backups/
+
+# 配置文件
+config/setup.json
+*.conf
+
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 构建产物
+dist/
+build/
+*.zip
+*.tar.gz
+*.rar
+
+# 编辑器配置
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# Docker
+docker-compose.override.yml
+
+# SSL证书
+*.crt
+*.key
+*.pem
+
+# 敏感文件
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# 测试覆盖报告
+coverage/
+.nyc_output/
+
+# PM2配置（可能包含敏感信息）
+ecosystem.local.config.js
+
+# 备份文件
+*.bak
+*.backup
+
+# 日志文件
+*.log
+*.log.*
+
+# ============================================================
+# 安全注意事项
+# ============================================================
+# 1. .env 文件包含敏感配置（数据库密码、API密钥等）
+# 2. 确保 .env.example 不包含真实敏感信息
+# 3. 使用 .env.production.sample 作为生产环境配置模板
+# 4. 定期审查 .gitignore 确保没有遗漏敏感文件
