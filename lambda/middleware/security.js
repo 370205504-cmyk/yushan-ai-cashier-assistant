@@ -44,6 +44,15 @@ const orderLimiter = rateLimit({
   keyGenerator: (req) => req.userId || req.ip
 });
 
+
+const agentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { success: false, message: 'Agent请求过于频繁，请稍后再试' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || req.ip
+});
 const helmetConfig = helmet({
   contentSecurityPolicy: {
     reportOnly: process.env.CSP_REPORT_ONLY === 'true',
@@ -302,7 +311,7 @@ const generateCsrfToken = () => {
   return uuidv4();
 };
 
-const csrfWhitelist = ['/agent'];
+const csrfWhitelist = [];
 
 const csrfProtection = (req, res, next) => {
   if (csrfWhitelist.some(path => req.path.startsWith(path))) {
@@ -370,6 +379,7 @@ module.exports = {
   authLimiter,
   paymentLimiter,
   orderLimiter,
+  agentLimiter,
   helmetConfig,
   corsConfig,
   validate,

@@ -11,7 +11,8 @@
     "import-sample": "node lambda/database/import-sample.js",
     "backup": "node lambda/database/backup.js",
     "lint": "eslint lambda/",
-    "security:scan": "npm audit"
+    "security:scan": "npm audit",
+    "security:fix": "npm audit fix --force"
   },
   "keywords": [
     "restaurant",
@@ -46,10 +47,11 @@
     "nodemailer": "6.9.8",
     "opossum": "8.1.4",
     "qrcode": "1.5.3",
-    "redis": "4.6.12",
+    "redis": "^5.0.0",
     "uuid": "9.0.1",
     "validator": "13.11.0",
-    "winston": "3.11.0"
+    "winston": "3.11.0",
+    "ws": "^8.14.0"
   },
   "devDependencies": {
     "eslint": "8.55.0",
@@ -58,5 +60,8 @@
   },
   "engines": {
     "node": ">=18.0.0 <22.0.0"
+  },
+  "overrides": {
+    "ws": "^8.14.0"
   }
 }
