@@ -50,16 +50,21 @@ if (missingSecrets.length > 0) {
 }
 
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'yushan-ai-cashier-session-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: isProduction,
     httpOnly: true,
     sameSite: 'strict',
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 24 * 60 * 60 * 1000,
+    path: '/'
   },
-  name: 'yushan.sid'
+  name: `yushan_${isProduction ? 'prod' : 'dev'}_sid_${Date.now() % 1000}`,
+  rolling: true,
+  genid: (req) => {
+    return require('crypto').randomBytes(32).toString('hex');
+  }
 };
 
 if (db.redis && db.redis.isOpen) {
@@ -75,7 +80,15 @@ app.use(corsConfig);
 app.use(ipProtection);
 app.use(inputSanitize);
 app.use(xssProtection);
+
+const enforceHttps = (req, res, next) => {
+  if (isProduction && !req.secure && req.get('x-forwarded-proto') !== 'https') {
+    return res.redirect(`https://${req.get('host')}${req.url}`);
+  }
+  next();
+};
 app.use(enforceHttps);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

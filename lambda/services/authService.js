@@ -241,9 +241,9 @@ class AuthService {
   }
 
   generateToken(userId, role = 'user') {
-    const secret = process.env.JWT_SECRET || 'yushan-ai-cashier-jwt-secret-key';
+    const secret = process.env.JWT_SECRET;
     return jwt.sign(
-      { userId, role, iat: Math.floor(Date.now() / 1000) }, 
+      { userId, role, iat: Math.floor(Date.now() / 1000), jti: require('uuid').v4() }, 
       secret, 
       { expiresIn: TOKEN_EXPIRY }
     );
@@ -251,7 +251,7 @@ class AuthService {
 
   verifyToken(token) {
     try {
-      const secret = process.env.JWT_SECRET || 'yushan-ai-cashier-jwt-secret-key';
+      const secret = process.env.JWT_SECRET;
       return jwt.verify(token, secret);
     } catch (error) {
       logger.warn('Token验证失败:', error.message);

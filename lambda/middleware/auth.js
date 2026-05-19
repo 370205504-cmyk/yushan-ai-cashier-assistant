@@ -2,12 +2,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../database/db');
 const logger = require('../utils/logger');
 
-const DEFAULT_JWT_SECRET = 'yushan-ai-cashier-jwt-secret-key';
-const JWT_SECRET = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
-
-if (process.env.NODE_ENV === 'production' && process.env.JWT_SECRET === undefined) {
-  throw new Error('ERROR: JWT_SECRET environment variable is required in production. Please set JWT_SECRET in your .env file.');
-}
+const JWT_SECRET = process.env.JWT_SECRET;
 const TOKEN_EXPIRY = '2h';
 const SESSION_EXPIRY_HOURS = 2;
 

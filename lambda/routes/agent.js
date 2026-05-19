@@ -9,28 +9,66 @@ const llmService = require('../services/llm-service');
 const weatherService = require('../services/weatherService');
 
 const PROMPT_INJECTION_PATTERNS = [
-  /ignore\s+(previous|all|your)/i,
-  /forget\s+(everything|instructions)/i,
-  /disregard\s+(your|previous)/i,
+  /ignore\s+(previous|all|your|above)/i,
+  /forget\s+(everything|instructions|above)/i,
+  /disregard\s+(your|previous|above)/i,
   /you\s+are\s+now/i,
   /you\s+are\s+a/i,
-  /sql\s+(select|insert|update|delete|drop)/i,
-  /select\s+\*\s+from/i,
+  /pretend\s+you\s+are/i,
+  /act\s+as/i,
+  /let's\s+role\s+play/i,
+  /roleplay/i,
+  /system\s+prompt/i,
+  /reveal\s+(your|the)\s+prompt/i,
+  /show\s+(your|the)\s+prompt/i,
+  /tell\s+(me|us)\s+your\s+prompt/i,
+  /what\s+is\s+your\s+prompt/i,
+  /bypass\s+security/i,
+  /disable\s+security/i,
+  /sql\s+(select|insert|update|delete|drop|truncate|union)/i,
+  /select\s+.*\s+from/i,
   /delete\s+from/i,
   /drop\s+(table|database)/i,
   /\bexec\b|\beval\b|\beval\s*\(/i,
   /\{\{.*\}\}/,
+  /\${.*}/,
   /<script/i,
   /javascript:/i,
-  /on\w+\s*=/i
+  /on\w+\s*=/i,
+  /忽略之前/i,
+  /忘记一切/i,
+  /无视你的/i,
+  /你现在是/i,
+  /扮演/i,
+  /假装/i,
+  /角色替换/i,
+  /揭示你的/i,
+  /显示你的/i,
+  /告诉我你的/i,
+  /你的提示词/i,
+  /绕过安全/i
 ];
 
+const SUSPICIOUS_KEYWORDS = ['system', 'prompt', 'ignore', 'forget', 'disregard', 'bypass', 'disable', 'reveal', 'show', 'tell'];
+
 function detectPromptInjection(query) {
+  const lowerQuery = query.toLowerCase().trim();
+  
   for (const pattern of PROMPT_INJECTION_PATTERNS) {
     if (pattern.test(query)) {
       return true;
     }
   }
+  
+  const words = lowerQuery.split(/\s+/);
+  const hasSuspicious = SUSPICIOUS_KEYWORDS.some(keyword => 
+    words.slice(0, Math.min(10, words.length)).includes(keyword)
+  );
+  
+  if (hasSuspicious && words.length <= 5) {
+    return true;
+  }
+  
   return false;
 }
 
